@@ -20,6 +20,7 @@ export function createMainWindow() {
     backgroundColor: '#0A0A0B',
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 14, y: 14 },
+    icon: path.join(__dirname, '../../resources/icon.svg'),
     show: false,
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),

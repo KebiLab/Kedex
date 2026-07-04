@@ -69,6 +69,7 @@
   "build": {
     "appId": "dev.kebilab.kedex",
     "productName": "Kedex",
+    "icon": "resources/icon.svg",
     "files": [
       "dist/**/*",
       "core/target/release/kedex-core*",
