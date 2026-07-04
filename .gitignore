@@ -1,0 +1,14 @@
+node_modules/
+dist/
+out/
+release/
+*.log
+.DS_Store
+.env
+.env.local
+.vscode/
+.idea/
+core/target/
+core/Cargo.lock
+.kedex/
+*.local
