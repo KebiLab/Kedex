@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Square, Loader2 } from 'lucide-react';
+import { Microphone, Stop, CircleNotch } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 
 type Status = 'idle' | 'recording' | 'transcribing' | 'error';
@@ -40,8 +40,6 @@ export function VoiceInput({ onResult, className }: Props) {
       timer.current = null;
     }
     setStatus('transcribing');
-    // Demo: just simulate a Whisper response. In production the audio
-    // buffer goes through window.kedex.invoke('voice/transcribe', ...).
     setTimeout(() => {
       onResult('Add a settings modal with provider list and API key inputs.');
       setStatus('idle');
@@ -50,7 +48,7 @@ export function VoiceInput({ onResult, className }: Props) {
   };
 
   const Icon =
-    status === 'transcribing' ? Loader2 : status === 'recording' ? Square : Mic;
+    status === 'transcribing' ? CircleNotch : status === 'recording' ? Stop : Microphone;
 
   return (
     <div className={cn('relative flex items-center', className)}>
@@ -92,7 +90,7 @@ export function VoiceInput({ onResult, className }: Props) {
           }
         }}
         className={cn(
-          'group relative grid h-9 w-9 place-items-center rounded-lg border transition active:scale-95',
+          'group relative grid h-9 w-9 place-items-center rounded-xl border transition active:scale-95',
           status === 'idle' && 'border-line bg-bg-2 text-fg-muted hover:border-line-strong hover:text-fg',
           status === 'recording' && 'border-danger/50 bg-danger/15 text-danger shadow-[0_0_0_3px_rgba(239,68,68,0.15)]',
           status === 'transcribing' && 'border-accent-500/50 bg-accent-500/10 text-accent-400',
@@ -104,6 +102,7 @@ export function VoiceInput({ onResult, className }: Props) {
             'h-4 w-4',
             status === 'transcribing' && 'animate-spin',
           )}
+          weight={status === 'recording' ? 'fill' : 'bold'}
         />
       </button>
     </div>

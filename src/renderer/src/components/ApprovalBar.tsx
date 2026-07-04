@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, ShieldCheck, ShieldX } from 'lucide-react';
+import { Terminal, Check, X } from '@phosphor-icons/react';
 import { useApp } from '@/store/app';
 import { Button } from '@/components/ui/Button';
 
@@ -10,38 +10,22 @@ export function ApprovalBar() {
     <AnimatePresence>
       {approval && (
         <motion.div
-          initial={{ opacity: 0, y: -8 }}
+          initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          className="border-b border-line bg-gradient-to-b from-warn/10 to-bg-1/60 backdrop-blur"
+          exit={{ opacity: 0, y: -4 }}
+          className="border-b border-line bg-bg-2"
         >
-          <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2.5">
-            <div className="grid h-7 w-7 place-items-center rounded-lg border border-warn/40 bg-warn/10 text-warn">
-              <Terminal className="h-3.5 w-3.5" />
-            </div>
+          <div className="mx-auto flex max-w-2xl items-center gap-3 px-5 py-2.5">
+            <Terminal className="h-4 w-4 shrink-0 text-fg-muted" weight="fill" />
             <div className="min-w-0 flex-1">
-              <div className="text-2xs font-medium uppercase tracking-wider text-warn">
-                Shell approval required
-              </div>
+              <div className="text-2xs text-fg-muted">Shell approval required</div>
               <div className="truncate font-mono text-xs text-fg">{approval.command}</div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setApproval(null);
-              }}
-            >
-              <ShieldX className="h-3.5 w-3.5" /> Deny
+            <Button variant="ghost" size="sm" onClick={() => setApproval(null)}>
+              <X className="h-3.5 w-3.5" weight="bold" /> Deny
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                setApproval(null);
-              }}
-            >
-              <ShieldCheck className="h-3.5 w-3.5" /> Allow
+            <Button variant="primary" size="sm" onClick={() => setApproval(null)}>
+              <Check className="h-3.5 w-3.5" weight="bold" /> Allow
             </Button>
           </div>
         </motion.div>

@@ -5,7 +5,7 @@ interface MarkProps extends React.SVGProps<SVGSVGElement> {
   size?: number;
 }
 
-export function LogoMark({ size = 28, className, ...rest }: MarkProps) {
+export function LogoMark({ size = 22, className, ...rest }: MarkProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,55 +17,38 @@ export function LogoMark({ size = 28, className, ...rest }: MarkProps) {
     >
       <defs>
         <linearGradient id={`bg-${size}`} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#0F0F12" />
-          <stop offset="1" stopColor="#0A0A0B" />
+          <stop offset="0" stopColor="#171717" />
+          <stop offset="1" stopColor="#0A0A0A" />
         </linearGradient>
-        <linearGradient id={`stroke-${size}`} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#7C3AED" />
-          <stop offset="0.55" stopColor="#A78BFA" />
-          <stop offset="1" stopColor="#22D3EE" />
+        <linearGradient id={`ring-${size}`} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#404040" />
+          <stop offset="1" stopColor="#262626" />
         </linearGradient>
-        <linearGradient id={`ribbonA-${size}`} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#8B5CF6" />
-          <stop offset="1" stopColor="#C4B5FD" />
+        <linearGradient id={`spark-${size}`} x1="32" y1="10" x2="32" y2="54" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#FB923C" />
+          <stop offset="1" stopColor="#EA580C" />
         </linearGradient>
-        <linearGradient id={`ribbonB-${size}`} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#A78BFA" />
-          <stop offset="1" stopColor="#22D3EE" />
-        </linearGradient>
-        <radialGradient id={`hl-${size}`} cx="0.32" cy="0.22" r="0.85">
-          <stop offset="0" stopColor="white" stopOpacity="0.35" />
-          <stop offset="0.55" stopColor="white" stopOpacity="0" />
-        </radialGradient>
       </defs>
-      <rect x="2" y="2" width="60" height="60" rx="16" fill={`url(#bg-${size})`} />
-      <rect x="2" y="2" width="60" height="60" rx="16" stroke={`url(#stroke-${size})`} strokeWidth="1.4" />
-      <rect x="2" y="2" width="60" height="60" rx="16" fill={`url(#hl-${size})`} />
+      <rect x="2" y="2" width="60" height="60" rx="18" fill={`url(#bg-${size})`} />
+      <rect x="2" y="2" width="60" height="60" rx="18" stroke={`url(#ring-${size})`} strokeWidth="1.2" />
       <path
-        d="M18 14 C 17.2 14 16.6 14.7 16.6 15.5 L 16.6 48.5 C 16.6 49.3 17.2 50 18 50 L 20.4 50 C 21.2 50 21.8 49.3 21.8 48.5 L 21.8 15.5 C 21.8 14.7 21.2 14 20.4 14 Z"
-        fill={`url(#ribbonA-${size})`}
+        d="M32 12 L 35 29 L 52 32 L 35 35 L 32 52 L 29 35 L 12 32 L 29 29 Z"
+        fill={`url(#spark-${size})`}
       />
-      <path
-        d="M21 32.4 C 20.6 32 20.6 31.4 21 31.0 L 39.0 16.6 C 39.6 16.1 40.4 16.1 41.0 16.6 L 42.6 17.9 C 43.2 18.4 43.2 19.3 42.6 19.8 L 26.8 32.5 Z"
-        fill={`url(#ribbonB-${size})`}
-      />
-      <path
-        d="M26.8 32.5 L 42.6 45.2 C 43.2 45.7 43.2 46.6 42.6 47.1 L 41.0 48.4 C 40.4 48.9 39.6 48.9 39.0 48.4 L 21 33.0 C 20.6 32.6 20.6 32.0 21 31.6 Z"
-        fill={`url(#ribbonB-${size})`}
-      />
-      <circle cx="24" cy="32" r="1.6" fill="white" fillOpacity="0.55" />
+      <circle cx="32" cy="32" r="3.6" fill="#FFFFFF" />
+      <circle cx="32" cy="32" r="1.6" fill="#F97316" />
     </svg>
   );
 }
 
-export function Logo({ className, compact }: { className?: string; compact?: boolean }) {
+export function Logo({ className, showName = true }: { className?: string; showName?: boolean }) {
   return (
     <div className={cn('flex items-center gap-2.5', className)}>
-      <LogoMark size={compact ? 24 : 28} />
-      {!compact && (
+      <LogoMark size={22} />
+      {showName && (
         <div className="flex flex-col leading-none">
-          <span className="text-sm font-semibold tracking-tight text-fg">Kedex</span>
-          <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-fg-faint">
+          <span className="text-sm font-semibold text-fg">Kedex</span>
+          <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-fg-dim">
             code · agent · core
           </span>
         </div>

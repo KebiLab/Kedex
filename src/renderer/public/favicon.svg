@@ -1,28 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#7C3AED"/>
-      <stop offset="0.55" stop-color="#A78BFA"/>
-      <stop offset="1" stop-color="#22D3EE"/>
-    </linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#A78BFA" stop-opacity="0.85"/>
-      <stop offset="1" stop-color="#22D3EE" stop-opacity="0.75"/>
-    </linearGradient>
-    <radialGradient id="hl" cx="0.3" cy="0.2" r="0.7">
-      <stop offset="0" stop-color="white" stop-opacity="0.35"/>
-      <stop offset="0.6" stop-color="white" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect x="1" y="1" width="30" height="30" rx="7.5" fill="#0A0A0B" stroke="url(#g)" stroke-width="1.2"/>
-  <rect x="1" y="1" width="30" height="30" rx="7.5" fill="url(#hl)"/>
-  <!-- Stylized k-glyph: a flowing ribbon that forms the letter -->
-  <!-- Vertical stem (left) -->
-  <path d="M9 7.2 C 8.6 7.2 8.3 7.5 8.3 7.9 L 8.3 24.1 C 8.3 24.5 8.6 24.8 9 24.8 L 10.2 24.8 C 10.6 24.8 10.9 24.5 10.9 24.1 L 10.9 7.9 C 10.9 7.5 10.6 7.2 10.2 7.2 Z" fill="url(#g)"/>
-  <!-- Upper arm: curve from middle of stem to top-right -->
-  <path d="M10.7 16.4 C 10.5 16.2 10.5 15.9 10.7 15.7 L 19.2 8.4 C 19.5 8.2 19.9 8.2 20.2 8.4 L 21 9.1 C 21.3 9.3 21.3 9.8 21 10.0 L 13.6 16.1 Z" fill="url(#g2)"/>
-  <!-- Lower leg: curve from middle of stem to bottom-right -->
-  <path d="M13.6 16.1 L 21 22.2 C 21.3 22.4 21.3 22.9 21 23.1 L 20.2 23.8 C 19.9 24.0 19.5 24.0 19.2 23.8 L 10.7 16.5 C 10.5 16.3 10.5 16.0 10.7 15.8 Z" fill="url(#g2)"/>
-  <!-- Subtle highlight ribbon -->
-  <path d="M10.9 9 L 10.9 13" stroke="white" stroke-opacity="0.45" stroke-width="0.5" stroke-linecap="round"/>
+  <rect x="1" y="1" width="30" height="30" rx="9" fill="#0D0D0D"/>
+  <rect x="1" y="1" width="30" height="30" rx="9" stroke="#262626" stroke-width="1"/>
+  <!-- Spark glyph: 4-point star built from two thin diamonds -->
+  <path d="M16 7 L 17.6 14.4 L 25 16 L 17.6 17.6 L 16 25 L 14.4 17.6 L 7 16 L 14.4 14.4 Z" fill="#F97316"/>
+  <circle cx="16" cy="16" r="2.4" fill="#FFFFFF"/>
 </svg>

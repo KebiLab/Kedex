@@ -22,6 +22,9 @@
     "postinstall": "echo skipping native rebuild (no MSVC toolchain in this env)"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-dropdown-menu": "^2.1.2",
     "@radix-ui/react-popover": "^1.1.2",
@@ -79,10 +82,17 @@
       {
         "from": "core/target/release/",
         "to": "core/",
-        "filter": ["kedex-core*"]
+        "filter": [
+          "kedex-core*"
+        ]
       }
     ],
-    "mac": { "target": "dmg", "category": "public.app-category.developer-tools" },
-    "win": { "target": "nsis" }
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }

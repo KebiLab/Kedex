@@ -4,30 +4,24 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/40 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/20 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        primary:
-          'bg-accent-600 text-white shadow-glow hover:bg-accent-500 active:translate-y-px',
-        secondary:
-          'bg-bg-3 text-fg border border-line hover:border-line-strong hover:bg-bg-4',
-        ghost: 'text-fg-muted hover:text-fg hover:bg-bg-3',
-        outline:
-          'border border-line text-fg hover:border-line-strong hover:bg-bg-2',
-        danger:
-          'bg-danger/15 text-danger border border-danger/30 hover:bg-danger/25',
-        link: 'text-accent-400 underline-offset-4 hover:underline',
+        primary: 'bg-fg text-bg-0 hover:bg-fg-muted',
+        secondary: 'bg-bg-2 text-fg border border-line hover:border-line-strong',
+        ghost: 'text-fg-muted hover:text-fg hover:bg-bg-2',
+        outline: 'border border-line text-fg hover:border-line-strong',
+        danger: 'text-danger hover:bg-danger/10',
       },
       size: {
-        sm: 'h-7 px-2.5 text-xs',
-        md: 'h-8 px-3 text-sm',
-        lg: 'h-10 px-4 text-sm',
-        icon: 'h-8 w-8',
-        'icon-sm': 'h-7 w-7',
+        sm: 'h-7 px-2 text-xs',
+        md: 'h-8 px-2.5 text-sm',
+        icon: 'h-7 w-7',
+        'icon-sm': 'h-6 w-6',
       },
     },
-    defaultVariants: { variant: 'secondary', size: 'md' },
+    defaultVariants: { variant: 'ghost', size: 'md' },
   },
 );
 
