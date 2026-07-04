@@ -2,11 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    color-scheme: dark;
-  }
+/* Dark theme (default) */
+:root,
+:root.dark {
+  color-scheme: dark;
 
+  --bg: 15 15 16;          /* #0F0F10 */
+  --bg-0: 10 10 11;        /* #0A0A0B */
+  --bg-1: 19 19 22;        /* #131316 */
+  --bg-2: 26 26 29;        /* #1A1A1D */
+  --bg-3: 34 34 38;        /* #222226 */
+  --bg-4: 42 42 47;        /* #2A2A2F */
+
+  --line: 255 255 255;
+  --line-strong: 255 255 255;
+
+  --fg: 245 245 245;       /* #F5F5F5 */
+  --fg-muted: 161 161 170; /* #A1A1AA */
+  --fg-dim: 113 113 122;   /* #71717A */
+  --fg-faint: 82 82 91;    /* #52525B */
+}
+
+/* Light theme */
+:root.light {
+  color-scheme: light;
+
+  --bg: 255 255 255;       /* #FFFFFF */
+  --bg-0: 255 255 255;     /* #FFFFFF */
+  --bg-1: 250 250 250;     /* #FAFAFA */
+  --bg-2: 244 244 245;     /* #F4F4F5 */
+  --bg-3: 232 232 235;     /* #E8E8EB */
+  --bg-4: 220 220 224;     /* #DCDCE0 */
+
+  --line: 229 229 231;     /* #E5E5E7 */
+  --line-strong: 212 212 216; /* #D4D4D8 */
+
+  --fg: 13 13 13;          /* #0D0D0D */
+  --fg-muted: 93 93 93;    /* #5D5D5D */
+  --fg-dim: 138 138 138;   /* #8A8A8A */
+  --fg-faint: 168 168 172; /* #A8A8AC */
+}
+
+@layer base {
   html,
   body,
   #root {
@@ -19,14 +56,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    background: #0F0F10;
-    color: #F5F5F5;
+    background: rgb(var(--bg));
+    color: rgb(var(--fg));
     letter-spacing: -0.005em;
   }
 
   ::selection {
-    background: #F5F5F5;
-    color: #0F0F10;
+    background: rgb(var(--fg));
+    color: rgb(var(--bg));
   }
 
   ::-webkit-scrollbar {
@@ -42,7 +79,7 @@
     transition: background 200ms;
   }
   *:hover::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgb(var(--line-strong) / 0.6);
   }
 }
 

@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { Paperclip, CaretDown, Square, Microphone, PaperPlaneTilt } from '@phosphor-icons/react';
+import { Paperclip, Square, Microphone, PaperPlaneTilt } from '@phosphor-icons/react';
 import { useApp } from '@/store/app';
-import { LogoMark } from '@/components/ui/Logo';
-import { useKbd } from '@/lib/platform';
 import { cn, uid } from '@/lib/utils';
 import type { AgentMode } from '@shared/ipc';
 
@@ -25,7 +23,6 @@ export function PromptArea() {
   const activeProviderId = useApp((s) => s.activeProviderId);
   const providers = useApp((s) => s.providers);
   const setActiveProvider = useApp((s) => s.setActiveProvider);
-  const kbd = useKbd();
 
   const submit = () => {
     const value = text.trim();
@@ -51,7 +48,7 @@ export function PromptArea() {
   };
 
   return (
-    <div className="px-6 pb-8">
+    <div className="px-6 pb-10">
       <div className="mx-auto w-full max-w-2xl">
         <div className="rounded-2xl border border-line bg-bg-1 shadow-soft transition focus-within:border-fg/20 focus-within:shadow-pop">
           <textarea
@@ -62,7 +59,7 @@ export function PromptArea() {
             }}
             placeholder="Ask Codex Anything…"
             rows={1}
-            className="block max-h-[180px] w-full resize-none bg-transparent px-5 pt-4 pb-2 text-sm leading-6 text-fg placeholder:text-fg-dim focus:outline-none"
+            className="block max-h-[200px] w-full resize-none bg-transparent px-5 pt-4 pb-2 text-sm leading-6 text-fg placeholder:text-fg-dim focus:outline-none"
           />
           <div className="flex items-center gap-1.5 px-3 pb-3">
             <button
@@ -98,8 +95,6 @@ export function PromptArea() {
               ))}
             </select>
 
-            <span className="ml-1 text-2xs text-fg-dim">Extra high</span>
-
             <div className="ml-auto flex items-center gap-1.5">
               <button
                 className="grid h-7 w-7 place-items-center rounded-lg text-fg-muted transition hover:bg-bg-2 hover:text-fg"
@@ -133,18 +128,6 @@ export function PromptArea() {
               )}
             </div>
           </div>
-        </div>
-
-        <div className="mt-3 flex items-center justify-center gap-3 text-2xs text-fg-dim">
-          <button className="flex items-center gap-1.5 rounded-md px-1.5 py-0.5 hover:bg-bg-2 hover:text-fg">
-            <LogoMark size={11} className="text-fg-dim" />
-            Default permissions <CaretDown className="h-3 w-3" weight="bold" />
-          </button>
-          <span className="hidden items-center gap-1 sm:flex">
-            <span className="kbd">{kbd.mod}</span>
-            <span className="kbd">{kbd.enter === 'Return' ? '⏎' : 'Enter'}</span>
-            <span>to run</span>
-          </span>
         </div>
       </div>
     </div>

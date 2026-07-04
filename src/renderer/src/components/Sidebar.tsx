@@ -1,6 +1,5 @@
 import {
   Plus,
-  GearSix,
   Chats,
   PushPin,
   MagnifyingGlass,
@@ -34,9 +33,6 @@ export function Sidebar() {
         >
           <Plus className="h-4 w-4 text-fg-muted" weight="bold" />
           <span>New thread</span>
-          <span className="ml-auto rounded-md border border-line bg-bg-1 px-1.5 py-0.5 text-2xs text-fg-dim">
-            Ctrl N
-          </span>
         </button>
         <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-fg-muted transition hover:bg-bg-2">
           <MagnifyingGlass className="h-4 w-4" weight="bold" />
@@ -45,7 +41,6 @@ export function Sidebar() {
         <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-fg-muted transition hover:bg-bg-2">
           <Sparkle className="h-4 w-4" weight="fill" />
           <span>Automations</span>
-          <span className="ml-auto rounded-md bg-bg-2 px-1.5 py-0.5 text-2xs text-fg-muted">2</span>
         </button>
         <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-fg-muted transition hover:bg-bg-2">
           <Stack className="h-4 w-4" weight="fill" />

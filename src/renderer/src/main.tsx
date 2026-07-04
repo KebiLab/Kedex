@@ -6,7 +6,12 @@ import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
+import { applyTheme, getStoredTheme, watchSystemTheme } from '@/lib/theme';
 import { TooltipProvider } from '@/components/ui/Tooltip';
+
+const initialTheme = getStoredTheme();
+applyTheme(initialTheme);
+if (initialTheme === 'system') watchSystemTheme(() => applyTheme('system'));
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

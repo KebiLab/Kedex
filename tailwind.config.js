@@ -6,25 +6,25 @@ export default {
     extend: {
       colors: {
         bg: {
-          DEFAULT: '#0F0F10',
-          0: '#0A0A0B',
-          1: '#131316',
-          2: '#1A1A1D',
-          3: '#222226',
-          4: '#2A2A2F',
+          DEFAULT: 'rgb(var(--bg) / <alpha-value>)',
+          0: 'rgb(var(--bg-0) / <alpha-value>)',
+          1: 'rgb(var(--bg-1) / <alpha-value>)',
+          2: 'rgb(var(--bg-2) / <alpha-value>)',
+          3: 'rgb(var(--bg-3) / <alpha-value>)',
+          4: 'rgb(var(--bg-4) / <alpha-value>)',
         },
         line: {
-          DEFAULT: 'rgba(255,255,255,0.06)',
-          strong: 'rgba(255,255,255,0.10)',
+          DEFAULT: 'rgb(var(--line) / <alpha-value>)',
+          strong: 'rgb(var(--line-strong) / <alpha-value>)',
         },
         fg: {
-          DEFAULT: '#F5F5F5',
-          muted: '#A1A1AA',
-          dim: '#71717A',
-          faint: '#52525B',
+          DEFAULT: 'rgb(var(--fg) / <alpha-value>)',
+          muted: 'rgb(var(--fg-muted) / <alpha-value>)',
+          dim: 'rgb(var(--fg-dim) / <alpha-value>)',
+          faint: 'rgb(var(--fg-faint) / <alpha-value>)',
         },
         accent: {
-          DEFAULT: '#F5F5F5',
+          DEFAULT: 'rgb(var(--fg) / <alpha-value>)',
           warm: '#FB923C',
           blue: '#3B82F6',
         },
@@ -49,9 +49,9 @@ export default {
         '4xl': '2rem',
       },
       boxShadow: {
-        soft: '0 1px 2px rgba(0,0,0,0.3)',
-        card: '0 0 0 1px rgba(255,255,255,0.06)',
-        pop: '0 8px 24px -8px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
+        soft: '0 1px 2px rgba(0,0,0,0.06)',
+        card: '0 0 0 1px rgb(var(--line) / 1)',
+        pop: '0 8px 24px -8px rgba(0,0,0,0.18), 0 0 0 1px rgb(var(--line) / 1)',
       },
       keyframes: {
         'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
