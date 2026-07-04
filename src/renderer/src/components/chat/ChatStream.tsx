@@ -71,8 +71,13 @@ function EmptyState({
   providers: { id: string; label: string }[];
   onPickProvider: (id: string) => void;
 }) {
+  const SUGGESTIONS = [
+    { icon: '🎮', title: 'Build a classic Snake game in this repo.' },
+    { icon: '📄', title: 'Create a one-page PDF that summarizes this app.' },
+    { icon: '✏️', title: 'Create a plan to refactor the auth middleware.' },
+  ];
   return (
-    <div className="mt-16 flex flex-col items-center justify-center text-center">
+    <div className="mt-12 flex flex-col items-center">
       <div className="animate-spark-pulse">
         <LogoMark size={48} className="text-fg" />
       </div>
@@ -81,12 +86,29 @@ function EmptyState({
         onClick={() => {
           if (providers[0]) onPickProvider(providers[0].id);
         }}
-        className="mt-2 inline-flex items-center gap-1 text-base text-fg-dim transition hover:text-fg"
+        className="mt-1 inline-flex items-center gap-1 text-base text-fg-dim transition hover:text-fg"
       >
         <span>{activeModel}</span>
         <span>·</span>
         <span>{providers.find((p) => p.id === activeProviderId)?.label ?? 'Codex'}</span>
         <span>▾</span>
+      </button>
+
+      <div className="mt-8 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
+        {SUGGESTIONS.map((s) => (
+          <button
+            key={s.title}
+            className="group flex flex-col items-start gap-2 rounded-2xl border border-line bg-bg-1 p-4 text-left transition hover:border-line-strong"
+          >
+            <div className="text-xl">{s.icon}</div>
+            <div className="text-xs text-fg-muted transition group-hover:text-fg">
+              {s.title}
+            </div>
+          </button>
+        ))}
+      </div>
+      <button className="mt-3 text-2xs text-fg-dim transition hover:text-fg">
+        Explore more
       </button>
     </div>
   );

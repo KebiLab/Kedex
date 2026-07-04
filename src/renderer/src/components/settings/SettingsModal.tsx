@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   PaintBrush,
   Key,
@@ -27,6 +27,7 @@ import { VoiceTab } from './VoiceTab';
 import { TerminalTab } from './TerminalTab';
 import { ShortcutsTab } from './ShortcutsTab';
 import { McpTab } from './McpTab';
+import { SkillsTab } from './SkillsTab';
 import { useApp } from '@/store/app';
 import type { ProviderConfig, ProviderId } from '@shared/ipc';
 
@@ -37,6 +38,7 @@ type SectionId =
   | 'voice'
   | 'terminal'
   | 'shortcuts'
+  | 'skills'
   | 'mcp'
   | 'browser'
   | 'computer'
@@ -65,6 +67,7 @@ const SECTIONS: Section[] = [
   { id: 'usage', label: 'Usage & billing', icon: CreditCard, group: 'personal' },
   { id: 'shortcuts', label: 'Keyboard shortcuts', icon: Keyboard, group: 'personal' },
 
+  { id: 'skills', label: 'Skills', icon: Stack, group: 'integrations' },
   { id: 'mcp', label: 'MCP servers', icon: Plugs, group: 'integrations' },
   { id: 'browser', label: 'Browser', icon: Globe, group: 'integrations' },
   { id: 'computer', label: 'Computer use', icon: Cpu, group: 'integrations' },
@@ -93,6 +96,12 @@ export function SettingsModal() {
   const activeProviderId = useApp((s) => s.activeProviderId);
   const setActiveProvider = useApp((s) => s.setActiveProvider);
   const [section, setSection] = useState<SectionId>('appearance');
+  const settingsSection = useApp((s) => s.settingsSection);
+  useEffect(() => {
+    if (open && settingsSection) {
+      setSection(settingsSection as SectionId);
+    }
+  }, [open, settingsSection]);
 
   return (
     <>
@@ -235,6 +244,7 @@ function SectionView({
       {section === 'terminal' && <TerminalTab />}
       {section === 'shortcuts' && <ShortcutsTab />}
       {section === 'mcp' && <McpTab />}
+      {section === 'skills' && <SkillsTab />}
       {(section === 'browser' ||
         section === 'computer' ||
         section === 'hooks' ||

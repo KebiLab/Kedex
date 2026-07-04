@@ -35,6 +35,7 @@ export interface ApprovalRequest {
 
 interface AppState {
   workspace: Workspace | null;
+  projects: { id: string; name: string }[];
   threads: Thread[];
   activeThreadId: string | null;
   messages: Record<string, ChatMessage[]>;
@@ -48,10 +49,12 @@ interface AppState {
   streamBuffer: string;
   pendingApproval: ApprovalRequest | null;
   settingsOpen: boolean;
+  settingsSection: string;
   browserOpen: boolean;
   toasts: { id: string; tone: 'info' | 'success' | 'error'; text: string }[];
 
   setWorkspace: (w: Workspace | null) => void;
+  setProjects: (p: { id: string; name: string }[]) => void;
   setActiveThread: (id: string) => void;
   newThread: () => string;
   addMessage: (threadId: string, msg: ChatMessage) => void;
@@ -69,6 +72,7 @@ interface AppState {
   toggleMcpServer: (id: string, enabled: boolean) => void;
   setActiveModel: (m: string) => void;
   setSettingsOpen: (b: boolean) => void;
+  openSettingsSection: (id: string) => void;
   setBrowserOpen: (b: boolean) => void;
   setPendingApproval: (a: ApprovalRequest | null) => void;
   pushToast: (t: { tone: 'info' | 'success' | 'error'; text: string }) => void;
@@ -117,6 +121,11 @@ const seedMessages: Record<string, ChatMessage[]> = {
 
 export const useApp = create<AppState>((set, get) => ({
   workspace: { id: 'ws_demo', name: 'kedex-app', path: 'D:\\Projects\\kedex-app', open: true },
+  projects: [
+    { id: 'p_kedex', name: 'kedex-app' },
+    { id: 'p_snake', name: 'snake-game' },
+    { id: 'p_landing', name: 'landing-page' },
+  ],
   threads: seedThreads,
   activeThreadId: 't_welcome',
   messages: seedMessages,
@@ -168,10 +177,12 @@ export const useApp = create<AppState>((set, get) => ({
   streamBuffer: '',
   pendingApproval: null,
   settingsOpen: false,
+  settingsSection: 'appearance',
   browserOpen: false,
   toasts: [],
 
   setWorkspace: (w) => set({ workspace: w }),
+  setProjects: (p) => set({ projects: p }),
   setActiveThread: (id) => set({ activeThreadId: id }),
   newThread: () => {
     const id = `t_${Math.random().toString(36).slice(2, 9)}`;
@@ -236,6 +247,7 @@ export const useApp = create<AppState>((set, get) => ({
     })),
   setActiveModel: (m) => set({ activeModel: m }),
   setSettingsOpen: (b) => set({ settingsOpen: b }),
+  openSettingsSection: (id) => set({ settingsSection: id, settingsOpen: true }),
   setBrowserOpen: (b) => set({ browserOpen: b }),
   setPendingApproval: (a) => set({ pendingApproval: a }),
   pushToast: (t) => {
