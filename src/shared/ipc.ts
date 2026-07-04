@@ -33,7 +33,7 @@ export interface ChatMessage {
   toolResult?: unknown;
 }
 
-export type AgentMode = 'plan' | 'goal' | 'ask';
+export type AgentMode = 'plan' | 'goal' | 'ask' | 'build';
 
 export interface PlanStep {
   id: string;
@@ -71,6 +71,18 @@ export interface FileDiff {
   hunks: DiffHunk[];
 }
 
+export interface McpServer {
+  id: string;
+  name: string;
+  command: string;
+  args: string[];
+  env: Record<string, string>;
+  enabled: boolean;
+  status: 'connected' | 'disconnected' | 'error' | 'connecting';
+  tools: string[];
+  lastError?: string;
+}
+
 export type IpcRequest =
   | { type: 'agent/run'; payload: { prompt: string; mode: AgentMode; threadId: string } }
   | { type: 'agent/cancel'; payload: { runId: string } }
@@ -95,6 +107,11 @@ export type IpcRequest =
   | { type: 'providers/remove'; payload: { id: ProviderId } }
   | { type: 'secrets/set'; payload: { providerId: ProviderId; apiKey: string } }
   | { type: 'secrets/get'; payload: { providerId: ProviderId } }
+  | { type: 'mcp/list' }
+  | { type: 'mcp/add'; payload: Omit<McpServer, 'id' | 'status' | 'tools'> }
+  | { type: 'mcp/remove'; payload: { id: string } }
+  | { type: 'mcp/toggle'; payload: { id: string; enabled: boolean } }
+  | { type: 'mcp/restart'; payload: { id: string } }
   | { type: 'voice/transcribe'; payload: { audioBase64: string; mime: string } };
 
 export type IpcResponse =

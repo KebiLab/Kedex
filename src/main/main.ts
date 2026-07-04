@@ -128,6 +128,12 @@ export function registerIpc() {
         case 'fs/writeFile':
         case 'fs/listDir':
           return { type: 'error', error: { code: 'NOT_IMPLEMENTED', message: req.type } } as const;
+        case 'mcp/list':
+        case 'mcp/add':
+        case 'mcp/remove':
+        case 'mcp/toggle':
+        case 'mcp/restart':
+          return { type: 'ok', payload: [] } as const;
         case 'agent/run':
         case 'agent/cancel':
         case 'plan/create':

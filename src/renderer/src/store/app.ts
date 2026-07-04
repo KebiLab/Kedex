@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type {
   AgentMode,
   ChatMessage,
+  McpServer,
   Plan,
   ProviderConfig,
   ProviderId,
@@ -42,6 +43,7 @@ interface AppState {
   providers: ProviderConfig[];
   activeProviderId: ProviderId | null;
   activeModel: string;
+  mcpServers: McpServer[];
   isStreaming: boolean;
   streamBuffer: string;
   pendingApproval: ApprovalRequest | null;
@@ -61,6 +63,10 @@ interface AppState {
   upsertPlan: (plan: Plan) => void;
   setProviders: (p: ProviderConfig[]) => void;
   setActiveProvider: (id: ProviderId, model?: string) => void;
+  setMcpServers: (s: McpServer[]) => void;
+  addMcpServer: (s: McpServer) => void;
+  removeMcpServer: (id: string) => void;
+  toggleMcpServer: (id: string, enabled: boolean) => void;
   setActiveModel: (m: string) => void;
   setSettingsOpen: (b: boolean) => void;
   setBrowserOpen: (b: boolean) => void;
@@ -126,6 +132,38 @@ export const useApp = create<AppState>((set, get) => ({
   ],
   activeProviderId: 'openai',
   activeModel: 'gpt-5.3-codex',
+  mcpServers: [
+    {
+      id: 'mcp_github',
+      name: 'GitHub',
+      command: 'npx',
+      args: ['-y', '@modelcontextprotocol/server-github'],
+      env: { GITHUB_TOKEN: '••••••••' } as Record<string, string>,
+      enabled: true,
+      status: 'connected',
+      tools: ['create_issue', 'list_repos', 'search_code', 'get_file'],
+    },
+    {
+      id: 'mcp_postgres',
+      name: 'Postgres',
+      command: 'npx',
+      args: ['-y', '@modelcontextprotocol/server-postgres'],
+      env: { DATABASE_URL: '••••••••' } as Record<string, string>,
+      enabled: true,
+      status: 'connected',
+      tools: ['query', 'list_tables', 'describe_table'],
+    },
+    {
+      id: 'mcp_puppeteer',
+      name: 'Puppeteer',
+      command: 'npx',
+      args: ['-y', '@modelcontextprotocol/server-puppeteer'],
+      env: {} as Record<string, string>,
+      enabled: false,
+      status: 'disconnected',
+      tools: ['screenshot', 'navigate', 'click'],
+    },
+  ],
   isStreaming: false,
   streamBuffer: '',
   pendingApproval: null,
@@ -181,6 +219,16 @@ export const useApp = create<AppState>((set, get) => ({
       return { plans, activePlanId: plan.id };
     }),
   setProviders: (p) => set({ providers: p }),
+  setMcpServers: (mcpServers) => set({ mcpServers }),
+  addMcpServer: (s) => set((cur) => ({ mcpServers: [s, ...cur.mcpServers] })),
+  removeMcpServer: (id) =>
+    set((cur) => ({ mcpServers: cur.mcpServers.filter((s) => s.id !== id) })),
+  toggleMcpServer: (id, enabled) =>
+    set((cur) => ({
+      mcpServers: cur.mcpServers.map((s) =>
+        s.id === id ? { ...s, enabled, status: enabled ? 'connecting' : 'disconnected' } : s,
+      ),
+    })),
   setActiveProvider: (id, model) =>
     set((s) => ({
       activeProviderId: id,

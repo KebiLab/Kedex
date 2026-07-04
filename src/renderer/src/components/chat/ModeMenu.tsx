@@ -12,6 +12,7 @@ const MODES: ModeDef[] = [
   { id: 'plan', label: 'Plan', description: 'Draft steps, get approval, then run.' },
   { id: 'goal', label: 'Goal', description: 'Run autonomously until done.' },
   { id: 'ask', label: 'Ask', description: 'Just answer, do not edit files.' },
+  { id: 'build', label: 'Build', description: 'Multi-file changes with self-review.' },
 ];
 
 interface Props {
