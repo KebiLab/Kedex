@@ -4,6 +4,7 @@
     "lib": ["ES2022"],
     "module": "CommonJS",
     "moduleResolution": "node",
+    "moduleResolution": "node",
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
@@ -18,5 +19,5 @@
       "@shared/*": ["src/shared/*"]
     }
   },
-  "include": ["src/main", "src/preload", "src/shared"]
+  "include": ["src/main/index.ts", "src/main", "src/preload", "src/shared"]
 }

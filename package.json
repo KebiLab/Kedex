@@ -2,10 +2,11 @@
   "name": "kedex",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Kedex — multi-provider AI coding desktop agent (Electron + React + Rust)",
   "author": "KebiLab",
   "license": "UNLICENSED",
-  "main": "dist/main/main.js",
+  "main": "dist/main/index.js",
   "scripts": {
     "dev": "concurrently -k -n VITE,ELECTRON -c cyan,magenta \"npm:dev:renderer\" \"npm:dev:electron\"",
     "dev:renderer": "vite",
@@ -18,7 +19,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,html,json}\"",
-    "postinstall": "electron-builder install-app-deps || true"
+    "postinstall": "echo skipping native rebuild (no MSVC toolchain in this env)"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",
