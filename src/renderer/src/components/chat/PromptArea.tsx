@@ -2,13 +2,9 @@ import { useState } from 'react';
 import { Paperclip, Square, Microphone, PaperPlaneTilt } from '@phosphor-icons/react';
 import { useApp } from '@/store/app';
 import { cn, uid } from '@/lib/utils';
-import type { AgentMode } from '@shared/ipc';
-
-const MODE_LABEL: Record<AgentMode, string> = {
-  plan: 'Plan',
-  goal: 'Goal',
-  ask: 'Ask',
-};
+import type { AgentMode, ProviderConfig } from '@shared/ipc';
+import { ModeMenu } from './ModeMenu';
+import { ModelMenu } from './ModelMenu';
 
 export function PromptArea() {
   const [text, setText] = useState('');
@@ -47,9 +43,12 @@ export function PromptArea() {
     requestAnimationFrame(tick);
   };
 
+  const liteProviders: { id: ProviderConfig['id']; label: string; defaultModel: string }[] =
+    providers.map((p) => ({ id: p.id, label: p.label, defaultModel: p.defaultModel }));
+
   return (
     <div className="px-6 pb-10">
-      <div className="mx-auto w-full max-w-2xl">
+      <div className="mx-auto w-full max-w-3xl">
         <div className="rounded-2xl border border-line bg-bg-1 shadow-soft transition focus-within:border-fg/20 focus-within:shadow-pop">
           <textarea
             value={text}
@@ -58,46 +57,29 @@ export function PromptArea() {
               if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submit();
             }}
             placeholder="Ask Codex Anything…"
-            rows={1}
-            className="block max-h-[200px] w-full resize-none bg-transparent px-5 pt-4 pb-2 text-sm leading-6 text-fg placeholder:text-fg-dim focus:outline-none"
+            rows={2}
+            className="block max-h-[280px] min-h-[80px] w-full resize-none bg-transparent px-6 pt-5 pb-3 text-[15px] leading-7 text-fg placeholder:text-fg-dim focus:outline-none"
           />
           <div className="flex items-center gap-1.5 px-3 pb-3">
             <button
-              className="grid h-7 w-7 place-items-center rounded-lg text-fg-muted transition hover:bg-bg-2 hover:text-fg"
+              className="grid h-8 w-8 place-items-center rounded-lg text-fg-muted transition hover:bg-bg-2 hover:text-fg"
               aria-label="Attach"
             >
               <Paperclip className="h-4 w-4" weight="bold" />
             </button>
 
-            <select
-              value={mode}
-              onChange={(e) => setMode(e.target.value as AgentMode)}
-              className="flex h-7 items-center gap-1 rounded-md border border-line bg-bg-2 px-2.5 text-xs text-fg transition hover:border-line-strong focus:outline-none"
-            >
-              {(Object.keys(MODE_LABEL) as AgentMode[]).map((m) => (
-                <option key={m} value={m} className="bg-bg-1 text-fg">
-                  {MODE_LABEL[m]}
-                </option>
-              ))}
-            </select>
+            <ModeMenu value={mode} onChange={setMode} />
 
-            <select
-              value={activeProviderId ?? ''}
-              onChange={(e) =>
-                setActiveProvider(e.target.value as never, activeModel)
-              }
-              className="flex h-7 items-center gap-1 rounded-md border border-line bg-bg-2 px-2.5 text-xs text-fg transition hover:border-line-strong focus:outline-none"
-            >
-              {providers.map((p) => (
-                <option key={p.id} value={p.id} className="bg-bg-1 text-fg">
-                  {activeModel} · {p.label}
-                </option>
-              ))}
-            </select>
+            <ModelMenu
+              value={activeProviderId}
+              onChange={(id) => setActiveProvider(id, activeModel)}
+              providers={liteProviders}
+              activeModel={activeModel}
+            />
 
             <div className="ml-auto flex items-center gap-1.5">
               <button
-                className="grid h-7 w-7 place-items-center rounded-lg text-fg-muted transition hover:bg-bg-2 hover:text-fg"
+                className="grid h-8 w-8 place-items-center rounded-lg text-fg-muted transition hover:bg-bg-2 hover:text-fg"
                 aria-label="Voice"
                 title="Hold to dictate"
               >
@@ -106,7 +88,7 @@ export function PromptArea() {
               {isStreaming ? (
                 <button
                   onClick={finishStream}
-                  className="grid h-7 w-7 place-items-center rounded-lg bg-fg text-bg-0 transition hover:bg-fg/90"
+                  className="grid h-8 w-8 place-items-center rounded-lg bg-fg text-bg-0 transition hover:bg-fg/90"
                   aria-label="Stop"
                 >
                   <Square className="h-3 w-3" weight="fill" />
@@ -116,14 +98,14 @@ export function PromptArea() {
                   onClick={submit}
                   disabled={!text.trim()}
                   className={cn(
-                    'grid h-7 w-7 place-items-center rounded-lg transition',
+                    'grid h-8 w-8 place-items-center rounded-lg transition',
                     text.trim()
                       ? 'bg-fg text-bg-0 hover:bg-fg/90'
                       : 'bg-bg-2 text-fg-dim',
                   )}
                   aria-label="Send"
                 >
-                  <PaperPlaneTilt className="h-3.5 w-3.5" weight="fill" />
+                  <PaperPlaneTilt className="h-4 w-4" weight="fill" />
                 </button>
               )}
             </div>
