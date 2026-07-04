@@ -10,7 +10,7 @@ export function Markdown({ content, streaming }: { content: string; streaming?: 
             return (
               <pre
                 key={i}
-                className="overflow-x-auto rounded-lg border border-line bg-bg-0/80 p-3 font-mono text-xs leading-5 text-fg"
+                className="overflow-x-auto rounded-lg border border-line bg-bg-0/80 p-3  text-xs leading-5 text-fg"
               >
                 <code>{m[2]}</code>
               </pre>
@@ -42,7 +42,7 @@ function renderInline(s: string) {
   let key = 0;
   while ((m = re.exec(s))) {
     if (m.index > last) parts.push(s.slice(last, m.index));
-    if (m[1] !== undefined) parts.push(<code key={key++} className="rounded bg-bg-3 px-1 py-0.5 font-mono text-2xs text-fg">{m[1]}</code>);
+    if (m[1] !== undefined) parts.push(<code key={key++} className="rounded bg-bg-3 px-1 py-0.5  text-2xs text-fg">{m[1]}</code>);
     else if (m[2] !== undefined) parts.push(<strong key={key++} className="font-semibold text-fg">{m[2]}</strong>);
     else if (m[3] !== undefined) parts.push(<em key={key++} className="italic text-fg-muted">{m[3]}</em>);
     last = re.lastIndex;

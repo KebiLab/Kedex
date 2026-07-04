@@ -19,7 +19,7 @@ export function ApprovalBar() {
             <Terminal className="h-4 w-4 shrink-0 text-fg-muted" weight="fill" />
             <div className="min-w-0 flex-1">
               <div className="text-2xs text-fg-muted">Shell approval required</div>
-              <div className="truncate font-mono text-xs text-fg">{approval.command}</div>
+              <div className="truncate  text-xs text-fg">{approval.command}</div>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setApproval(null)}>
               <X className="h-3.5 w-3.5" weight="bold" /> Deny

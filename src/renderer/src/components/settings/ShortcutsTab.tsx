@@ -81,7 +81,7 @@ function Row({ item }: { item: Item }) {
           <span
             key={i}
             className={cn(
-              'inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border border-line bg-bg-2 px-1.5 font-mono text-[10px] text-fg-muted',
+              'inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border border-line bg-bg-2 px-1.5  text-[10px] text-fg-muted',
               k.length > 1 && 'min-w-[2rem] text-[9px]',
             )}
           >

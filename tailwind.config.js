@@ -1,45 +1,45 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/renderer/index.html', './src/renderer/src/**/*.{ts,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         bg: {
-          DEFAULT: '#FFFFFF',
-          0: '#FFFFFF',
-          1: '#FAFAFA',
-          2: '#F4F4F5',
-          3: '#E8E8EB',
-          4: '#DCDCE0',
+          DEFAULT: '#0F0F10',
+          0: '#0A0A0B',
+          1: '#131316',
+          2: '#1A1A1D',
+          3: '#222226',
+          4: '#2A2A2F',
         },
         line: {
-          DEFAULT: '#E5E5E7',
-          strong: '#D4D4D8',
+          DEFAULT: 'rgba(255,255,255,0.06)',
+          strong: 'rgba(255,255,255,0.10)',
         },
         fg: {
-          DEFAULT: '#0D0D0D',
-          muted: '#5D5D5D',
-          dim: '#8A8A8A',
-          faint: '#A8A8AC',
+          DEFAULT: '#F5F5F5',
+          muted: '#A1A1AA',
+          dim: '#71717A',
+          faint: '#52525B',
         },
         accent: {
-          DEFAULT: '#0D0D0D',
-          warm: '#F97316',
+          DEFAULT: '#F5F5F5',
+          warm: '#FB923C',
+          blue: '#3B82F6',
         },
-        success: '#1A7F37',
-        warn: '#9A6700',
-        danger: '#D1242F',
-        info: '#0969DA',
+        success: '#22C55E',
+        warn: '#F59E0B',
+        danger: '#EF4444',
+        info: '#3B82F6',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       fontSize: {
         '2xs': ['0.6875rem', { lineHeight: '1rem' }],
       },
       borderRadius: {
-        sm: '0.375rem',
         DEFAULT: '0.5rem',
         md: '0.625rem',
         lg: '0.75rem',
@@ -49,9 +49,9 @@ export default {
         '4xl': '2rem',
       },
       boxShadow: {
-        soft: '0 1px 2px rgba(0,0,0,0.04)',
-        card: '0 0 0 1px #E5E5E7',
-        pop: '0 8px 24px -8px rgba(0,0,0,0.10), 0 0 0 1px #E5E5E7',
+        soft: '0 1px 2px rgba(0,0,0,0.3)',
+        card: '0 0 0 1px rgba(255,255,255,0.06)',
+        pop: '0 8px 24px -8px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
       },
       keyframes: {
         'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },

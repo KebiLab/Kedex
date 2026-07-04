@@ -65,7 +65,7 @@ export function BrowserView() {
                     >
                       <span className={`h-2 w-2 rounded-full ${a.color}`} />
                       <span className="flex-1 truncate text-fg">{a.label}</span>
-                      <span className="font-mono text-fg-dim">{a.coord}</span>
+                      <span className=" text-fg-dim">{a.coord}</span>
                     </div>
                   ))}
                 </div>
@@ -88,7 +88,7 @@ function ScreenshotMock() {
             <span className="h-2.5 w-2.5 rounded-full bg-black/10" />
             <span className="h-2.5 w-2.5 rounded-full bg-black/10" />
           </div>
-          <span className="font-mono">localhost:3000</span>
+          <span className="">localhost:3000</span>
         </div>
       </div>
 

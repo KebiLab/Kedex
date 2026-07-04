@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Paperclip, CaretDown, Square, Microphone, PaperPlaneTilt } from '@phosphor-icons/react';
 import { useApp } from '@/store/app';
-import { Button } from '@/components/ui/Button';
 import { LogoMark } from '@/components/ui/Logo';
 import { useKbd } from '@/lib/platform';
 import { cn, uid } from '@/lib/utils';
@@ -52,9 +51,9 @@ export function PromptArea() {
   };
 
   return (
-    <div className="px-6 pb-4">
+    <div className="px-6 pb-8">
       <div className="mx-auto w-full max-w-2xl">
-        <div className="rounded-3xl border border-line bg-bg shadow-card transition focus-within:border-fg/30 focus-within:shadow-pop">
+        <div className="rounded-2xl border border-line bg-bg-1 shadow-soft transition focus-within:border-fg/20 focus-within:shadow-pop">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -65,7 +64,7 @@ export function PromptArea() {
             rows={1}
             className="block max-h-[180px] w-full resize-none bg-transparent px-5 pt-4 pb-2 text-sm leading-6 text-fg placeholder:text-fg-dim focus:outline-none"
           />
-          <div className="flex items-center gap-1 px-2 pb-2">
+          <div className="flex items-center gap-1.5 px-3 pb-3">
             <button
               className="grid h-7 w-7 place-items-center rounded-lg text-fg-muted transition hover:bg-bg-2 hover:text-fg"
               aria-label="Attach"
@@ -76,10 +75,10 @@ export function PromptArea() {
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as AgentMode)}
-              className="flex h-7 items-center gap-1 rounded-lg px-2 text-xs text-fg-muted transition hover:bg-bg-2 hover:text-fg focus:outline-none"
+              className="flex h-7 items-center gap-1 rounded-md border border-line bg-bg-2 px-2.5 text-xs text-fg transition hover:border-line-strong focus:outline-none"
             >
               {(Object.keys(MODE_LABEL) as AgentMode[]).map((m) => (
-                <option key={m} value={m} className="bg-bg text-fg">
+                <option key={m} value={m} className="bg-bg-1 text-fg">
                   {MODE_LABEL[m]}
                 </option>
               ))}
@@ -90,10 +89,10 @@ export function PromptArea() {
               onChange={(e) =>
                 setActiveProvider(e.target.value as never, activeModel)
               }
-              className="flex h-7 items-center gap-1 rounded-lg px-2 text-xs text-fg-muted transition hover:bg-bg-2 hover:text-fg focus:outline-none"
+              className="flex h-7 items-center gap-1 rounded-md border border-line bg-bg-2 px-2.5 text-xs text-fg transition hover:border-line-strong focus:outline-none"
             >
               {providers.map((p) => (
-                <option key={p.id} value={p.id} className="bg-bg text-fg">
+                <option key={p.id} value={p.id} className="bg-bg-1 text-fg">
                   {activeModel} · {p.label}
                 </option>
               ))}
@@ -101,7 +100,7 @@ export function PromptArea() {
 
             <span className="ml-1 text-2xs text-fg-dim">Extra high</span>
 
-            <div className="ml-auto flex items-center gap-1">
+            <div className="ml-auto flex items-center gap-1.5">
               <button
                 className="grid h-7 w-7 place-items-center rounded-lg text-fg-muted transition hover:bg-bg-2 hover:text-fg"
                 aria-label="Voice"
@@ -112,7 +111,7 @@ export function PromptArea() {
               {isStreaming ? (
                 <button
                   onClick={finishStream}
-                  className="grid h-7 w-7 place-items-center rounded-lg bg-fg text-bg-0 transition hover:bg-fg-muted"
+                  className="grid h-7 w-7 place-items-center rounded-lg bg-fg text-bg-0 transition hover:bg-fg/90"
                   aria-label="Stop"
                 >
                   <Square className="h-3 w-3" weight="fill" />
@@ -124,7 +123,7 @@ export function PromptArea() {
                   className={cn(
                     'grid h-7 w-7 place-items-center rounded-lg transition',
                     text.trim()
-                      ? 'bg-fg text-bg-0 hover:bg-fg-muted'
+                      ? 'bg-fg text-bg-0 hover:bg-fg/90'
                       : 'bg-bg-2 text-fg-dim',
                   )}
                   aria-label="Send"
@@ -136,15 +135,12 @@ export function PromptArea() {
           </div>
         </div>
 
-        <div className="mt-2.5 flex items-center justify-center gap-2 text-2xs text-fg-dim">
-          <button className="flex items-center gap-1 rounded-md px-1.5 py-0.5 hover:bg-bg-2 hover:text-fg">
-            Local <CaretDown className="h-3 w-3" weight="bold" />
-          </button>
-          <button className="flex items-center gap-1 rounded-md px-1.5 py-0.5 hover:bg-bg-2 hover:text-fg">
-            <LogoMark size={10} className="text-fg-dim" />
+        <div className="mt-3 flex items-center justify-center gap-3 text-2xs text-fg-dim">
+          <button className="flex items-center gap-1.5 rounded-md px-1.5 py-0.5 hover:bg-bg-2 hover:text-fg">
+            <LogoMark size={11} className="text-fg-dim" />
             Default permissions <CaretDown className="h-3 w-3" weight="bold" />
           </button>
-          <span className="ml-1 hidden items-center gap-1 sm:flex">
+          <span className="hidden items-center gap-1 sm:flex">
             <span className="kbd">{kbd.mod}</span>
             <span className="kbd">{kbd.enter === 'Return' ? '⏎' : 'Enter'}</span>
             <span>to run</span>

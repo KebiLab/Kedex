@@ -101,7 +101,7 @@ export function DiffViewer({ diffs = SAMPLE }: { diffs?: FileDiff[] }) {
                   weight="bold"
                 />
                 <FileCode className="h-3.5 w-3.5 text-fg-muted" weight="fill" />
-                <span className="font-mono text-xs text-fg">{d.path}</span>
+                <span className=" text-xs text-fg">{d.path}</span>
                 <span className="ml-auto text-2xs text-fg-dim">
                   {d.hunks.length} hunk{d.hunks.length === 1 ? '' : 's'}
                 </span>
@@ -109,7 +109,7 @@ export function DiffViewer({ diffs = SAMPLE }: { diffs?: FileDiff[] }) {
               {open && (
                 <div>
                   {d.hunks.map((h, hi) => (
-                    <div key={hi} className="border-t border-line font-mono text-2xs">
+                    <div key={hi} className="border-t border-line  text-2xs">
                       <div className="flex items-center gap-3 border-b border-line bg-bg-1 px-5 py-1 text-fg-dim">
                         <span>@@ -{h.oldStart},{h.oldLines} +{h.newStart},{h.newLines} @@</span>
                       </div>

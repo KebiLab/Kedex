@@ -5,7 +5,7 @@ interface MarkProps extends React.SVGProps<SVGSVGElement> {
   size?: number;
 }
 
-export function LogoMark({ size = 22, className, ...rest }: MarkProps) {
+export function LogoMark({ size = 30, className, ...rest }: MarkProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -17,12 +17,12 @@ export function LogoMark({ size = 22, className, ...rest }: MarkProps) {
     >
       <defs>
         <linearGradient id={`bg-${size}`} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#171717" />
-          <stop offset="1" stopColor="#0A0A0A" />
+          <stop offset="0" stopColor="#1A1A1D" />
+          <stop offset="1" stopColor="#0F0F10" />
         </linearGradient>
         <linearGradient id={`ring-${size}`} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#404040" />
-          <stop offset="1" stopColor="#262626" />
+          <stop offset="0" stopColor="rgba(255,255,255,0.10)" />
+          <stop offset="1" stopColor="rgba(255,255,255,0.04)" />
         </linearGradient>
         <linearGradient id={`spark-${size}`} x1="32" y1="10" x2="32" y2="54" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="#FB923C" />
@@ -41,18 +41,11 @@ export function LogoMark({ size = 22, className, ...rest }: MarkProps) {
   );
 }
 
-export function Logo({ className, showName = true }: { className?: string; showName?: boolean }) {
+export function Logo({ className }: { className?: string }) {
   return (
     <div className={cn('flex items-center gap-2.5', className)}>
-      <LogoMark size={22} />
-      {showName && (
-        <div className="flex flex-col leading-none">
-          <span className="text-sm font-semibold text-fg">Kedex</span>
-          <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-fg-dim">
-            code · agent · core
-          </span>
-        </div>
-      )}
+      <LogoMark size={30} />
+      <span className="text-base font-semibold tracking-tight text-fg">Kedex</span>
     </div>
   );
 }

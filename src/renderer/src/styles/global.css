@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   html,
@@ -19,13 +19,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    background: #FFFFFF;
+    background: #0F0F10;
+    color: #F5F5F5;
     letter-spacing: -0.005em;
   }
 
   ::selection {
-    background: #0D0D0D;
-    color: #fff;
+    background: #F5F5F5;
+    color: #0F0F10;
   }
 
   ::-webkit-scrollbar {
@@ -41,33 +42,27 @@
     transition: background 200ms;
   }
   *:hover::-webkit-scrollbar-thumb {
-    background: #D4D4D8;
+    background: rgba(255, 255, 255, 0.08);
   }
 }
 
 @layer components {
   .surface {
-    @apply bg-bg border border-line;
+    @apply bg-bg-1 border border-line;
   }
   .hairline {
     @apply border-line;
   }
   .kbd {
-    @apply inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-md border border-line bg-bg-2 px-1.5 font-mono text-[10px] text-fg-muted;
+    @apply inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-md border border-line bg-bg-2 px-1.5 text-[10px] font-medium text-fg-muted;
   }
   .btn-ghost {
-    @apply inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-fg-muted transition hover:bg-bg-2 hover:text-fg;
+    @apply inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-fg-muted transition hover:bg-bg-2 hover:text-fg;
   }
   .btn-primary {
-    @apply inline-flex items-center gap-1.5 rounded-lg bg-fg px-2.5 py-1.5 text-sm font-medium text-bg-0 transition hover:bg-fg-muted active:translate-y-px;
+    @apply inline-flex items-center gap-1.5 rounded-md bg-fg px-2.5 py-1.5 text-sm font-medium text-bg-0 transition hover:bg-fg/90 active:translate-y-px;
   }
   .input {
-    @apply w-full rounded-lg border border-line bg-bg-0 px-3 py-2 text-sm text-fg placeholder:text-fg-faint focus:border-fg/40 focus:outline-none focus:ring-2 focus:ring-fg/10;
-  }
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+    @apply w-full rounded-md border border-line bg-bg-0 px-3 py-2 text-sm text-fg placeholder:text-fg-faint focus:border-fg/30 focus:outline-none focus:ring-2 focus:ring-fg/10;
   }
 }

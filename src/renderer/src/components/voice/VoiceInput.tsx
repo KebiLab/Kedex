@@ -64,7 +64,7 @@ export function VoiceInput({ onResult, className }: Props) {
               <span className="absolute inset-0 animate-ping rounded-full bg-danger/60" />
               <span className="relative h-1.5 w-1.5 rounded-full bg-danger" />
             </span>
-            <span className="font-mono tabular-nums">
+            <span className=" tabular-nums">
               {String(Math.floor(elapsed / 60)).padStart(2, '0')}:
               {String(elapsed % 60).padStart(2, '0')}
             </span>

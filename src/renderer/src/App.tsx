@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from '@/components/Sidebar';
-import { ThreadHeader } from '@/components/ThreadHeader';
 import { ChatStream } from '@/components/chat/ChatStream';
 import { PromptArea } from '@/components/chat/PromptArea';
 import { PlanViewer, buildSamplePlan } from '@/components/plan/PlanViewer';
@@ -25,9 +24,7 @@ export function App() {
     <div className="flex h-screen w-screen overflow-hidden bg-bg text-fg">
       <Sidebar />
       <main className="flex min-w-0 flex-1 flex-col">
-        <ThreadHeader />
         <ApprovalBar />
-        <CenterNav center={center} setCenter={setCenter} />
         <div className="flex min-h-0 flex-1 flex-col">
           <AnimatePresence mode="wait">
             {center === 'chat' && (
@@ -56,10 +53,7 @@ export function App() {
                   <PlanViewer
                     plan={plan}
                     onChange={setPlan}
-                    onApprove={() => {
-                      upsertPlan(plan);
-                      setCenter('plan');
-                    }}
+                    onApprove={() => upsertPlan(plan)}
                     onReject={() => setCenter('chat')}
                     onAddStep={() =>
                       setPlan({
@@ -98,33 +92,6 @@ export function App() {
       <SettingsModal />
       <BrowserView />
       <Toaster />
-    </div>
-  );
-}
-
-function CenterNav({ center, setCenter }: { center: Center; setCenter: (c: Center) => void }) {
-  const items: { id: Center; label: string }[] = [
-    { id: 'chat', label: 'Chat' },
-    { id: 'plan', label: 'Plan' },
-    { id: 'diff', label: 'Review' },
-  ];
-  return (
-    <div className="flex items-center gap-0.5 border-b border-line px-4 py-1.5">
-      {items.map((it) => {
-        const active = it.id === center;
-        return (
-          <button
-            key={it.id}
-            onClick={() => setCenter(it.id)}
-            className={
-              'rounded-md px-2 py-1 text-xs font-medium transition ' +
-              (active ? 'text-fg' : 'text-fg-muted hover:text-fg')
-            }
-          >
-            {it.label}
-          </button>
-        );
-      })}
     </div>
   );
 }

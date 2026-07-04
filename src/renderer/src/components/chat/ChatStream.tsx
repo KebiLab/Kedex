@@ -39,7 +39,7 @@ export function ChatStream() {
           <Bubble key={m.id} role={m.role}>
             {m.toolName ? (
               <div className="text-2xs text-fg-dim">
-                <span className="font-mono">{m.toolName}</span>
+                <span className="">{m.toolName}</span>
                 {m.toolArgs ? <span className="ml-2">{JSON.stringify(m.toolArgs).slice(0, 60)}</span> : null}
               </div>
             ) : (

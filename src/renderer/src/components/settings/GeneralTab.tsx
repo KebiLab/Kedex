@@ -132,7 +132,7 @@ function SliderRow({
     <div>
       <div className="mb-1.5 flex items-center justify-between">
         <span className="text-xs text-fg">{label}</span>
-        <span className="font-mono text-2xs text-fg-dim">{format(value)}</span>
+        <span className=" text-2xs text-fg-dim">{format(value)}</span>
       </div>
       <Slider value={value} min={min} max={max} step={step} onChange={onChange} />
     </div>

@@ -67,7 +67,7 @@ export function ProvidersTab({ providers, activeProviderId, onActivate, onSave, 
                     <span className="text-2xs text-warn">missing key</span>
                   )}
                 </div>
-                <div className="mt-0.5 truncate font-mono text-2xs text-fg-dim">
+                <div className="mt-0.5 truncate  text-2xs text-fg-dim">
                   {p.baseUrl || '—'} · {p.defaultModel}
                 </div>
               </div>
@@ -144,7 +144,7 @@ function ProviderEditor({
               value={draft.apiKey ?? ''}
               onChange={(e) => onChange({ ...draft, apiKey: e.target.value })}
               placeholder={hint.keyLabel}
-              className="input pr-9 font-mono text-xs"
+              className="input pr-9  text-xs"
             />
             <button
               type="button"
@@ -161,7 +161,7 @@ function ProviderEditor({
             value={draft.baseUrl ?? ''}
             onChange={(e) => onChange({ ...draft, baseUrl: e.target.value })}
             placeholder={hint.url}
-            className="input font-mono text-xs"
+            className="input  text-xs"
           />
         </Field>
 
@@ -169,7 +169,7 @@ function ProviderEditor({
           <input
             value={draft.defaultModel}
             onChange={(e) => onChange({ ...draft, defaultModel: e.target.value })}
-            className="input font-mono text-xs"
+            className="input  text-xs"
           />
         </Field>
 
@@ -207,7 +207,7 @@ function Field({
     <label className="block">
       <div className="mb-1 flex items-center justify-between">
         <span className="text-2xs font-medium uppercase tracking-wider text-fg-dim">{label}</span>
-        {hint && <span className="font-mono text-2xs text-fg-dim">{hint}</span>}
+        {hint && <span className=" text-2xs text-fg-dim">{hint}</span>}
       </div>
       {children}
     </label>
