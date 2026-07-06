@@ -32,14 +32,16 @@ where
 {
     let api_key = req
         .api_key
+        .clone()
         .ok_or_else(|| anyhow!("Missing API key for provider {}", req.provider))?;
     let model = if req.model.is_empty() {
         default_model(&req.provider)
     } else {
-        req.model
+        req.model.clone()
     };
     let base_url = req
         .base_url
+        .clone()
         .unwrap_or_else(|| default_base_url(&req.provider));
 
     let client = Client::builder()

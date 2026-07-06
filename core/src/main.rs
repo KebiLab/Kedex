@@ -58,13 +58,13 @@ async fn main() -> Result<()> {
             continue;
         };
 
-        let response = handle(req, &mut agent, &stdout);
+        let response = handle(req, &mut agent);
         write_message(&mut stdout.lock(), &response)?;
     }
     Ok(())
 }
 
-fn handle(req: CoreRequest, agent: &mut agent::Agent, stdout: &io::Stdout) -> CoreMessage {
+fn handle(req: CoreRequest, agent: &mut agent::Agent) -> CoreMessage {
     let id = req.id.clone();
     let method = req.method.clone();
     match method.as_str() {
@@ -152,20 +152,20 @@ fn handle(req: CoreRequest, agent: &mut agent::Agent, stdout: &io::Stdout) -> Co
                 .unwrap_or("plan")
                 .to_string();
 
-            let run_id_clone = run_id.clone();
+            let run_id_for_spawn = run_id.clone();
             let prompt_clone = prompt.clone();
-            let stdout_handle = stdout.try_clone().expect("stdout clone");
+            let run_id_for_delta = run_id.clone();
+            let on_delta = move |delta: String| {
+                let event = CoreMessage::Event(CoreEvent::StreamChunk {
+                    run_id: run_id_for_delta.clone(),
+                    delta,
+                });
+                let _ = write_message(&mut std::io::stdout().lock(), &event);
+            };
             tokio::spawn(async move {
-                let on_delta = |delta: String| {
-                    let event = CoreMessage::Event(CoreEvent::StreamChunk {
-                        run_id: run_id_clone.clone(),
-                        delta,
-                    });
-                    let _ = write_message(&mut stdout_handle.lock(), &event);
-                };
                 let result = llm::stream_completion(
                     llm::CompletionRequest {
-                        run_id: run_id_clone.clone(),
+                        run_id: run_id_for_spawn.clone(),
                         provider,
                         model,
                         api_key,
@@ -177,18 +177,19 @@ fn handle(req: CoreRequest, agent: &mut agent::Agent, stdout: &io::Stdout) -> Co
                     on_delta,
                 )
                 .await;
+                let log_run_id = run_id_for_spawn.clone();
                 let final_event = match result {
                     Ok(()) => CoreEvent::Log {
                         level: "info".to_string(),
-                        message: format!("run {run_id_clone} done"),
+                        message: format!("run {log_run_id} done"),
                     },
                     Err(e) => CoreEvent::Log {
                         level: "error".to_string(),
-                        message: format!("run {run_id_clone} failed: {e}"),
+                        message: format!("run {log_run_id} failed: {e}"),
                     },
                 };
                 let _ = write_message(
-                    &mut stdout_handle.lock(),
+                    &mut std::io::stdout().lock(),
                     &CoreMessage::Event(final_event),
                 );
             });

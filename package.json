@@ -12,7 +12,7 @@
     "dev:renderer": "vite",
     "dev:electron": "wait-on tcp:5173 && tsc -p tsconfig.electron.json && cross-env NODE_ENV=development electron .",
     "build:renderer": "vite build",
-    "build:electron": "tsc -p tsconfig.electron.json",
+    "build:electron": "tsc -p tsconfig.electron.json && node scripts/write-cjs-markers.mjs",
     "build:rust": "cd core && cargo build --release",
     "build": "npm run build:renderer && npm run build:electron && npm run build:rust",
     "start": "npm run build && electron .",
@@ -72,7 +72,12 @@
   "build": {
     "appId": "dev.kebilab.kedex",
     "productName": "Kedex",
-    "icon": "resources/icon.svg",
+    "icon": "resources/icon.ico",
+    "electronVersion": "33.4.11",
+    "buildDependenciesFromSource": false,
+    "nodeGypRebuild": false,
+    "npmRebuild": false,
+    "forceCodeSigning": false,
     "files": [
       "dist/**/*",
       "core/target/release/kedex-core*",
