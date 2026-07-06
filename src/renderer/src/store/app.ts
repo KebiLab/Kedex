@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import type {
   AgentMode,
+  AppSettings,
   ChatMessage,
   McpServer,
   Plan,
   ProviderConfig,
   ProviderId,
+  WorktreeInfo,
 } from '@shared/ipc';
+import { DEFAULT_SETTINGS } from '@shared/ipc';
 
 export interface Thread {
   id: string;
@@ -23,6 +26,8 @@ export interface Workspace {
   name: string;
   path: string;
   open: boolean;
+  worktreePath?: string;
+  worktreeBranch?: string;
 }
 
 export interface ApprovalRequest {
@@ -34,6 +39,7 @@ export interface ApprovalRequest {
 }
 
 interface AppState {
+  settings: AppSettings;
   workspace: Workspace | null;
   projects: { id: string; name: string }[];
   threads: Thread[];
@@ -52,7 +58,10 @@ interface AppState {
   settingsSection: string;
   browserOpen: boolean;
   toasts: { id: string; tone: 'info' | 'success' | 'error'; text: string }[];
+  worktrees: WorktreeInfo[];
+  isHydrated: boolean;
 
+  setSettings: (patch: Partial<AppSettings>) => void;
   setWorkspace: (w: Workspace | null) => void;
   setProjects: (p: { id: string; name: string }[]) => void;
   setActiveThread: (id: string) => void;
@@ -66,17 +75,19 @@ interface AppState {
   upsertPlan: (plan: Plan) => void;
   setProviders: (p: ProviderConfig[]) => void;
   setActiveProvider: (id: ProviderId, model?: string) => void;
+  setActiveModel: (m: string) => void;
   setMcpServers: (s: McpServer[]) => void;
   addMcpServer: (s: McpServer) => void;
   removeMcpServer: (id: string) => void;
   toggleMcpServer: (id: string, enabled: boolean) => void;
-  setActiveModel: (m: string) => void;
   setSettingsOpen: (b: boolean) => void;
   openSettingsSection: (id: string) => void;
   setBrowserOpen: (b: boolean) => void;
   setPendingApproval: (a: ApprovalRequest | null) => void;
   pushToast: (t: { tone: 'info' | 'success' | 'error'; text: string }) => void;
   dismissToast: (id: string) => void;
+  setWorktrees: (w: WorktreeInfo[]) => void;
+  setHydrated: (b: boolean) => void;
 }
 
 const seedThreads: Thread[] = [
@@ -120,7 +131,8 @@ const seedMessages: Record<string, ChatMessage[]> = {
 };
 
 export const useApp = create<AppState>((set, get) => ({
-  workspace: { id: 'ws_demo', name: 'kedex-app', path: 'D:\\Projects\\kedex-app', open: true },
+  settings: DEFAULT_SETTINGS,
+  workspace: null,
   projects: [
     { id: 'p_kedex', name: 'kedex-app' },
     { id: 'p_snake', name: 'snake-game' },
@@ -132,47 +144,17 @@ export const useApp = create<AppState>((set, get) => ({
   plans: [],
   activePlanId: null,
   providers: [
-    { id: 'openai', label: 'OpenAI', defaultModel: 'gpt-5.3-codex', requiresApiKey: true, streaming: 'sse' },
-    { id: 'anthropic', label: 'Anthropic', defaultModel: 'claude-3-5-sonnet', requiresApiKey: true, streaming: 'sse' },
+    { id: 'openai', label: 'OpenAI', defaultModel: 'gpt-4o-mini', requiresApiKey: true, streaming: 'sse' },
+    { id: 'anthropic', label: 'Anthropic', defaultModel: 'claude-3-5-sonnet-latest', requiresApiKey: true, streaming: 'sse' },
     { id: 'gemini', label: 'Google Gemini', defaultModel: 'gemini-1.5-pro', requiresApiKey: true, streaming: 'sse' },
     { id: 'deepseek', label: 'DeepSeek', defaultModel: 'deepseek-chat', baseUrl: 'https://api.deepseek.com/v1', requiresApiKey: true, streaming: 'sse' },
-    { id: 'ollama', label: 'Ollama (local)', defaultModel: 'llama3.1', baseUrl: 'http://localhost:11434', requiresApiKey: false, streaming: 'ollama' },
+    { id: 'mistral', label: 'Mistral', defaultModel: 'mistral-large-latest', requiresApiKey: true, streaming: 'sse' },
+    { id: 'ollama', label: 'Ollama (local)', defaultModel: 'llama3.1', baseUrl: 'http://localhost:11434/v1', requiresApiKey: false, streaming: 'ollama' },
     { id: 'custom', label: 'Custom Endpoint', defaultModel: 'my-model', requiresApiKey: true, streaming: 'sse' },
   ],
   activeProviderId: 'openai',
-  activeModel: 'gpt-5.3-codex',
-  mcpServers: [
-    {
-      id: 'mcp_github',
-      name: 'GitHub',
-      command: 'npx',
-      args: ['-y', '@modelcontextprotocol/server-github'],
-      env: { GITHUB_TOKEN: '••••••••' } as Record<string, string>,
-      enabled: true,
-      status: 'connected',
-      tools: ['create_issue', 'list_repos', 'search_code', 'get_file'],
-    },
-    {
-      id: 'mcp_postgres',
-      name: 'Postgres',
-      command: 'npx',
-      args: ['-y', '@modelcontextprotocol/server-postgres'],
-      env: { DATABASE_URL: '••••••••' } as Record<string, string>,
-      enabled: true,
-      status: 'connected',
-      tools: ['query', 'list_tables', 'describe_table'],
-    },
-    {
-      id: 'mcp_puppeteer',
-      name: 'Puppeteer',
-      command: 'npx',
-      args: ['-y', '@modelcontextprotocol/server-puppeteer'],
-      env: {} as Record<string, string>,
-      enabled: false,
-      status: 'disconnected',
-      tools: ['screenshot', 'navigate', 'click'],
-    },
-  ],
+  activeModel: 'gpt-4o-mini',
+  mcpServers: [],
   isStreaming: false,
   streamBuffer: '',
   pendingApproval: null,
@@ -180,7 +162,16 @@ export const useApp = create<AppState>((set, get) => ({
   settingsSection: 'appearance',
   browserOpen: false,
   toasts: [],
+  worktrees: [],
+  isHydrated: false,
 
+  setSettings: (patch) =>
+    set((s) => {
+      const next = { ...s.settings, ...patch };
+      // Persist via IPC
+      window.kedex?.invoke({ type: 'settings/set', payload: next }).catch(() => undefined);
+      return { settings: next };
+    }),
   setWorkspace: (w) => set({ workspace: w }),
   setProjects: (p) => set({ projects: p }),
   setActiveThread: (id) => set({ activeThreadId: id }),
@@ -223,29 +214,42 @@ export const useApp = create<AppState>((set, get) => ({
   },
   setStreaming: (b) => set({ isStreaming: b, streamBuffer: b ? '' : get().streamBuffer }),
   setActivePlan: (id) => set({ activePlanId: id }),
-  upsertPlan: (plan) =>
+  upsertPlan: (plan) => {
     set((s) => {
       const idx = s.plans.findIndex((p) => p.id === plan.id);
       const plans = idx >= 0 ? s.plans.map((p, i) => (i === idx ? plan : p)) : [plan, ...s.plans];
       return { plans, activePlanId: plan.id };
-    }),
+    });
+    window.kedex?.invoke({ type: 'plan/save', payload: { plan } }).catch(() => undefined);
+  },
   setProviders: (p) => set({ providers: p }),
+  setActiveProvider: (id, model) =>
+    set((s) => {
+      const cfg = s.providers.find((p) => p.id === id);
+      void window.kedex?.invoke({ type: 'providers/save', payload: { ...cfg!, id } }).catch(() => undefined);
+      return {
+        activeProviderId: id,
+        activeModel: model ?? cfg?.defaultModel ?? s.activeModel,
+      };
+    }),
+  setActiveModel: (m) => set({ activeModel: m }),
   setMcpServers: (mcpServers) => set({ mcpServers }),
-  addMcpServer: (s) => set((cur) => ({ mcpServers: [s, ...cur.mcpServers] })),
-  removeMcpServer: (id) =>
-    set((cur) => ({ mcpServers: cur.mcpServers.filter((s) => s.id !== id) })),
-  toggleMcpServer: (id, enabled) =>
+  addMcpServer: (s) => {
+    set((cur) => ({ mcpServers: [s, ...cur.mcpServers] }));
+    window.kedex?.invoke({ type: 'mcp/add', payload: s }).catch(() => undefined);
+  },
+  removeMcpServer: (id) => {
+    set((cur) => ({ mcpServers: cur.mcpServers.filter((s) => s.id !== id) }));
+    window.kedex?.invoke({ type: 'mcp/remove', payload: { id } }).catch(() => undefined);
+  },
+  toggleMcpServer: (id, enabled) => {
     set((cur) => ({
       mcpServers: cur.mcpServers.map((s) =>
         s.id === id ? { ...s, enabled, status: enabled ? 'connecting' : 'disconnected' } : s,
       ),
-    })),
-  setActiveProvider: (id, model) =>
-    set((s) => ({
-      activeProviderId: id,
-      activeModel: model ?? s.providers.find((p) => p.id === id)?.defaultModel ?? s.activeModel,
-    })),
-  setActiveModel: (m) => set({ activeModel: m }),
+    }));
+    window.kedex?.invoke({ type: 'mcp/toggle', payload: { id, enabled } }).catch(() => undefined);
+  },
   setSettingsOpen: (b) => set({ settingsOpen: b }),
   openSettingsSection: (id) => set({ settingsSection: id, settingsOpen: true }),
   setBrowserOpen: (b) => set({ browserOpen: b }),
@@ -256,4 +260,6 @@ export const useApp = create<AppState>((set, get) => ({
     setTimeout(() => get().dismissToast(id), 3500);
   },
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+  setWorktrees: (worktrees) => set({ worktrees }),
+  setHydrated: (b) => set({ isHydrated: b }),
 }));

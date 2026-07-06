@@ -4,6 +4,7 @@ import { useApp } from '@/store/app';
 import { Markdown } from './Markdown';
 import { LogoMark } from '@/components/ui/Logo';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/useT';
 
 export function ChatStream() {
   const activeThreadId = useApp((s) => s.activeThreadId);
@@ -71,17 +72,18 @@ function EmptyState({
   providers: { id: string; label: string }[];
   onPickProvider: (id: string) => void;
 }) {
+  const t = useT();
   const SUGGESTIONS = [
-    { icon: '🎮', title: 'Build a classic Snake game in this repo.' },
-    { icon: '📄', title: 'Create a one-page PDF that summarizes this app.' },
-    { icon: '✏️', title: 'Create a plan to refactor the auth middleware.' },
+    { icon: '🎮', title: t('empty.suggestion1') },
+    { icon: '📄', title: t('empty.suggestion2') },
+    { icon: '✏️', title: t('empty.suggestion3') },
   ];
   return (
     <div className="mt-12 flex flex-col items-center">
       <div className="animate-spark-pulse">
         <LogoMark size={48} className="text-fg" />
       </div>
-      <h1 className="mt-5 text-3xl font-semibold tracking-tight text-fg">Let's build</h1>
+      <h1 className="mt-5 text-3xl font-semibold tracking-tight text-fg">{t('app.letsBuild')}</h1>
       <button
         onClick={() => {
           if (providers[0]) onPickProvider(providers[0].id);
@@ -108,7 +110,7 @@ function EmptyState({
         ))}
       </div>
       <button className="mt-3 text-2xs text-fg-dim transition hover:text-fg">
-        Explore more
+        {t('app.exploreMore')}
       </button>
     </div>
   );

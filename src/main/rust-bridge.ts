@@ -123,7 +123,7 @@ export class RustBridge extends EventEmitter {
     }
   }
 
-  async call<T = unknown>(req: IpcRequest): Promise<T> {
+  async call<T = unknown>(req: { type: string; payload?: unknown; id?: string }): Promise<T> {
     await this.ready;
     const id = String(this.nextId++);
     const envelope = { id, ...req };

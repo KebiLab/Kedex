@@ -1,21 +1,26 @@
-import { useCallback, useRef, useState } from 'react';
-import { Paperclip, Square, Microphone, PaperPlaneTilt, X, FileText, FileCode, Image as ImageIcon } from '@phosphor-icons/react';
+import { useEffect, useRef, useState } from 'react';
+import { Paperclip, Square, Microphone, PaperPlaneTilt, X, FileText, FileCode, Image as ImageIcon, Lock } from '@phosphor-icons/react';
 import { useApp } from '@/store/app';
 import { cn, uid } from '@/lib/utils';
 import type { AgentMode } from '@shared/ipc';
 import { ModeMenu } from './ModeMenu';
 import { ModelMenu } from './ModelMenu';
 import { readFile, formatBytes, type AttachedFile } from '@/lib/attachments';
+import { useT } from '@/lib/useT';
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
 export function PromptArea() {
+  const t = useT();
   const [text, setText] = useState('');
   const [mode, setMode] = useState<AgentMode>('plan');
   const [files, setFiles] = useState<AttachedFile[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recordingRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const [recording, setRecording] = useState(false);
   const addMessage = useApp((s) => s.addMessage);
   const activeThreadId = useApp((s) => s.activeThreadId);
   const setStreaming = useApp((s) => s.setStreaming);
@@ -26,8 +31,10 @@ export function PromptArea() {
   const activeProviderId = useApp((s) => s.activeProviderId);
   const providers = useApp((s) => s.providers);
   const setActiveProvider = useApp((s) => s.setActiveProvider);
+  const pushToast = useApp((s) => s.pushToast);
+  const settings = useApp((s) => s.settings);
 
-  const addFiles = useCallback(async (incoming: FileList | File[]) => {
+  const addFiles = async (incoming: FileList | File[]) => {
     const next: AttachedFile[] = [];
     for (const f of Array.from(incoming)) {
       if (f.size > MAX_FILE_BYTES) continue;
@@ -38,64 +45,106 @@ export function PromptArea() {
       }
     }
     if (next.length) setFiles((cur) => [...cur, ...next]);
-  }, []);
+  };
 
-  const handlePaste = useCallback(
-    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      const files: File[] = [];
-      for (let i = 0; i < items.length; i++) {
-        const it = items[i];
-        if (it.kind === 'file') {
-          const f = it.getAsFile();
-          if (f) files.push(f);
-        }
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    const files: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      if (it.kind === 'file') {
+        const f = it.getAsFile();
+        if (f) files.push(f);
       }
-      if (files.length) {
-        e.preventDefault();
-        addFiles(files);
-      }
-    },
-    [addFiles],
-  );
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
+    }
+    if (files.length) {
       e.preventDefault();
-      setDragOver(false);
-      if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
-    },
-    [addFiles],
-  );
+      void addFiles(files);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer?.files?.length) void addFiles(e.dataTransfer.files);
+  };
 
   const removeFile = (id: string) => setFiles((cur) => cur.filter((f) => f.id !== id));
 
-  const submit = () => {
+  const submit = async () => {
     const value = text.trim();
     if (!value || !activeThreadId) return;
-    const attachmentNote = files.length
-      ? `\n\n[Attached: ${files.map((f) => f.name).join(', ')}]`
-      : '';
+    const attachments = files.map((f) => ({
+      name: f.name,
+      mime: f.mime,
+      dataBase64: f.preview.split(',')[1] ?? '',
+    }));
     addMessage(activeThreadId, {
       id: uid('m'),
       role: 'user',
-      content: value + attachmentNote,
+      content: value,
       createdAt: Date.now(),
+      attachments: files.map((f) => ({ name: f.name, mime: f.mime, size: f.size, preview: f.preview })),
     });
     setText('');
     setFiles([]);
     setStreaming(true);
-    const demo =
-      "Got it. I'll start by mapping the current schema, then propose a migration that adds `workspace_id` to every table and rewrites the RLS policies to scope by it.";
-    let i = 0;
-    const tick = () => {
-      i += 4;
-      appendStream(demo.slice(0, i));
-      if (i < demo.length) requestAnimationFrame(tick);
-      else finishStream();
-    };
-    requestAnimationFrame(tick);
+    try {
+      await window.kedex.invoke({
+        type: 'agent/run',
+        payload: { prompt: value, mode, threadId: activeThreadId, attachments },
+      });
+    } catch (err) {
+      appendStream(`\n\n[error: ${(err as Error).message}]`);
+      finishStream();
+      pushToast({ tone: 'error', text: (err as Error).message });
+    }
+  };
+
+  // Voice input (real microphone capture)
+  const startRecording = async () => {
+    if (recording) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      recorder.onstop = async () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const dataUrl = reader.result as string;
+          const base64 = dataUrl.split(',')[1] ?? '';
+          try {
+            const r = (await window.kedex.invoke({
+              type: 'voice/transcribe',
+              payload: { audioBase64: base64, mime: 'audio/webm' },
+            })) as { text: string };
+            if (r.text) {
+              setText((cur) => (cur ? cur + ' ' + r.text : r.text));
+            }
+          } catch (err) {
+            pushToast({ tone: 'error', text: `Whisper: ${(err as Error).message}` });
+          }
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      recorder.start();
+      recordingRef.current = recorder;
+      setRecording(true);
+    } catch (err) {
+      pushToast({ tone: 'error', text: `Mic: ${(err as Error).message}` });
+    }
+  };
+
+  const stopRecording = () => {
+    if (!recording) return;
+    recordingRef.current?.stop();
+    setRecording(false);
   };
 
   const liteProviders = providers.map((p) => ({
@@ -135,9 +184,9 @@ export function PromptArea() {
             onChange={(e) => setText(e.target.value)}
             onPaste={handlePaste}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submit();
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) void submit();
             }}
-            placeholder="Ask Codex Anything…  ·  paste images or drop files"
+            placeholder={t('prompt.placeholder')}
             rows={files.length > 0 ? 1 : 2}
             className="block max-h-[280px] min-h-[60px] w-full resize-none bg-transparent px-6 pt-4 pb-3 text-[15px] leading-7 text-fg placeholder:text-fg-dim focus:outline-none"
           />
@@ -149,7 +198,7 @@ export function PromptArea() {
               multiple
               className="hidden"
               onChange={(e) => {
-                if (e.target.files) addFiles(e.target.files);
+                if (e.target.files) void addFiles(e.target.files);
                 e.target.value = '';
               }}
             />
@@ -172,23 +221,33 @@ export function PromptArea() {
 
             <div className="ml-auto flex items-center gap-1.5">
               <button
-                className="grid h-8 w-8 place-items-center rounded-lg text-fg-muted transition hover:bg-bg-2 hover:text-fg"
+                onMouseDown={startRecording}
+                onMouseUp={stopRecording}
+                onMouseLeave={() => recording && stopRecording()}
+                onTouchStart={startRecording}
+                onTouchEnd={stopRecording}
+                className={cn(
+                  'grid h-8 w-8 place-items-center rounded-lg transition',
+                  recording
+                    ? 'bg-danger/15 text-danger'
+                    : 'text-fg-muted hover:bg-bg-2 hover:text-fg',
+                )}
                 aria-label="Voice"
-                title="Hold to dictate"
+                title={t('voice.hold')}
               >
-                <Microphone className="h-4 w-4" weight="fill" />
+                <Microphone className="h-4 w-4" weight={recording ? 'fill' : 'regular'} />
               </button>
               {isStreaming ? (
                 <button
                   onClick={finishStream}
                   className="grid h-8 w-8 place-items-center rounded-lg bg-fg text-bg-0 transition hover:bg-fg/90"
-                  aria-label="Stop"
+                  aria-label={t('prompt.stop')}
                 >
                   <Square className="h-3 w-3" weight="fill" />
                 </button>
               ) : (
                 <button
-                  onClick={submit}
+                  onClick={() => void submit()}
                   disabled={!text.trim()}
                   className={cn(
                     'grid h-8 w-8 place-items-center rounded-lg transition',
@@ -196,7 +255,7 @@ export function PromptArea() {
                       ? 'bg-fg text-bg-0 hover:bg-fg/90'
                       : 'bg-bg-2 text-fg-dim',
                   )}
-                  aria-label="Send"
+                  aria-label={t('prompt.run')}
                 >
                   <PaperPlaneTilt className="h-4 w-4" weight="fill" />
                 </button>
@@ -204,6 +263,13 @@ export function PromptArea() {
             </div>
           </div>
         </div>
+
+        {settings.env === 'local' && !settings.worktreeIsolation && (
+          <div className="mt-2 flex items-center justify-center gap-1.5 text-2xs text-warn">
+            <Lock className="h-3 w-3" weight="fill" />
+            Local mode — agent edits your working dir directly
+          </div>
+        )}
       </div>
     </div>
   );
@@ -214,11 +280,7 @@ function FileChip({ file, onRemove }: { file: AttachedFile; onRemove: () => void
   return (
     <div className="group flex items-center gap-2 rounded-lg border border-line bg-bg-2 p-1.5">
       {file.kind === 'image' ? (
-        <img
-          src={file.preview}
-          alt={file.name}
-          className="h-10 w-10 rounded-md object-cover"
-        />
+        <img src={file.preview} alt={file.name} className="h-10 w-10 rounded-md object-cover" />
       ) : (
         <div className="grid h-10 w-10 place-items-center rounded-md bg-bg-3 text-fg-muted">
           <Icon className="h-4 w-4" weight="fill" />

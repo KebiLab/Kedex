@@ -10,18 +10,25 @@ import { SettingsModal } from '@/components/settings/SettingsModal';
 import { BrowserView } from '@/components/browser/BrowserView';
 import { ApprovalBar } from '@/components/ApprovalBar';
 import { useIpcEvents } from '@/hooks/useIpcEvents';
+import { useHydrate } from '@/hooks/useHydrate';
 import { useApp } from '@/store/app';
 
 type Center = 'chat' | 'plan' | 'diff';
 
 export function App() {
   useIpcEvents();
+  useHydrate();
   const [center, setCenter] = useState<Center>('chat');
   const [plan, setPlan] = useState(() => buildSamplePlan());
   const upsertPlan = useApp((s) => s.upsertPlan);
+  const settings = useApp((s) => s.settings);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-bg text-fg">
+    <div
+      data-density={settings.density}
+      data-env={settings.env}
+      className="flex h-screen w-screen overflow-hidden bg-bg text-fg"
+    >
       <Sidebar />
       <main className="flex min-w-0 flex-1 flex-col">
         <ApprovalBar />
@@ -53,7 +60,9 @@ export function App() {
                   <PlanViewer
                     plan={plan}
                     onChange={setPlan}
-                    onApprove={() => upsertPlan(plan)}
+                    onApprove={() => {
+                      upsertPlan(plan);
+                    }}
                     onReject={() => setCenter('chat')}
                     onAddStep={() =>
                       setPlan({

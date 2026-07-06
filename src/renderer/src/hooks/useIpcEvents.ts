@@ -36,6 +36,8 @@ export function useIpcEvents() {
           break;
         case 'log':
           if (e.level === 'error') pushToast({ tone: 'error', text: e.message });
+          else if (e.level === 'info' && e.message.includes('failed'))
+            pushToast({ tone: 'error', text: e.message });
           break;
       }
     };

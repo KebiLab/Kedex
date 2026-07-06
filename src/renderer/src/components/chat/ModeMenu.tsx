@@ -1,18 +1,19 @@
 import { Popover, PopoverContent, PopoverTrigger, CaretDown, Check } from '@/components/ui/Popover';
 import type { AgentMode } from '@shared/ipc';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/useT';
 
 interface ModeDef {
   id: AgentMode;
-  label: string;
-  description: string;
+  labelKey: string;
+  descKey: string;
 }
 
 const MODES: ModeDef[] = [
-  { id: 'plan', label: 'Plan', description: 'Draft steps, get approval, then run.' },
-  { id: 'goal', label: 'Goal', description: 'Run autonomously until done.' },
-  { id: 'ask', label: 'Ask', description: 'Just answer, do not edit files.' },
-  { id: 'build', label: 'Build', description: 'Multi-file changes with self-review.' },
+  { id: 'plan', labelKey: 'mode.plan', descKey: 'mode.planDesc' },
+  { id: 'goal', labelKey: 'mode.goal', descKey: 'mode.goalDesc' },
+  { id: 'ask', labelKey: 'mode.ask', descKey: 'mode.askDesc' },
+  { id: 'build', labelKey: 'mode.build', descKey: 'mode.buildDesc' },
 ];
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function ModeMenu({ value, onChange }: Props) {
+  const t = useT();
   const active = MODES.find((m) => m.id === value) ?? MODES[0];
   return (
     <Popover>
@@ -31,13 +33,13 @@ export function ModeMenu({ value, onChange }: Props) {
             'hover:border-line-strong hover:bg-bg-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-fg/20',
           )}
         >
-          <span className="text-accent-warm">{active.label}</span>
+          <span className="text-accent-warm">{t(active.labelKey)}</span>
           <CaretDown className="ml-0.5 h-3 w-3 text-fg-dim transition group-data-[state=open]:rotate-180" weight="bold" />
         </button>
       </PopoverTrigger>
-      <PopoverContent width={260} align="start">
+      <PopoverContent width={280} align="start">
         <div className="px-2.5 pb-1.5 pt-1.5 text-2xs font-medium uppercase tracking-wider text-fg-dim">
-          Mode
+          {t('plan.title')}
         </div>
         {MODES.map((m) => {
           const selected = m.id === value;
@@ -64,9 +66,9 @@ export function ModeMenu({ value, onChange }: Props) {
                     selected ? 'text-accent-warm' : 'text-fg',
                   )}
                 >
-                  {m.label}
+                  {t(m.labelKey)}
                 </div>
-                <div className="mt-0.5 text-2xs text-fg-dim">{m.description}</div>
+                <div className="mt-0.5 text-2xs text-fg-dim">{t(m.descKey)}</div>
               </div>
             </button>
           );

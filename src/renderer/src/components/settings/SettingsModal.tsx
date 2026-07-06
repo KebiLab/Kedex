@@ -28,6 +28,7 @@ import { TerminalTab } from './TerminalTab';
 import { ShortcutsTab } from './ShortcutsTab';
 import { McpTab } from './McpTab';
 import { SkillsTab } from './SkillsTab';
+import { WorktreesTab } from './WorktreesTab';
 import { useApp } from '@/store/app';
 import type { ProviderConfig, ProviderId } from '@shared/ipc';
 
@@ -245,13 +246,13 @@ function SectionView({
       {section === 'shortcuts' && <ShortcutsTab />}
       {section === 'mcp' && <McpTab />}
       {section === 'skills' && <SkillsTab />}
+      {section === 'worktrees' && <WorktreesTab />}
       {(section === 'browser' ||
         section === 'computer' ||
         section === 'hooks' ||
         section === 'connectors' ||
         section === 'git' ||
         section === 'environments' ||
-        section === 'worktrees' ||
         section === 'archive' ||
         section === 'usage' ||
         section === 'profile') && <Placeholder label={meta?.label ?? 'Section'} />}

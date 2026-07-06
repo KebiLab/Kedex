@@ -17,10 +17,12 @@ import { useApp } from '@/store/app';
 import { Logo } from '@/components/ui/Logo';
 import { ScrollArea } from '@/components/ui/ScrollArea';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/useT';
 
 type ProjectEnv = 'worktree' | 'cloud' | 'local';
 
 export function Sidebar() {
+  const t = useT();
   const threads = useApp((s) => s.threads);
   const activeThreadId = useApp((s) => s.activeThreadId);
   const setActiveThread = useApp((s) => s.setActiveThread);
@@ -28,7 +30,8 @@ export function Sidebar() {
   const setSettingsOpen = useApp((s) => s.setSettingsOpen);
   const openSettingsSection = useApp((s) => s.openSettingsSection);
   const projects = useApp((s) => s.projects);
-  const [env, setEnv] = useState<ProjectEnv>('worktree');
+  const env = useApp((s) => s.settings.env);
+  const setSettings = useApp((s) => s.setSettings);
   const [pinnedOpen, setPinnedOpen] = useState(true);
   const [threadsOpen, setThreadsOpen] = useState(true);
   const [projectsOpen, setProjectsOpen] = useState(true);
@@ -48,7 +51,7 @@ export function Sidebar() {
           className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-fg transition hover:bg-bg-2"
         >
           <Plus className="h-4 w-4 text-fg-muted" weight="bold" />
-          <span>New thread</span>
+          <span>{t('app.newThread')}</span>
         </button>
         <button
           onClick={() => {
@@ -58,7 +61,7 @@ export function Sidebar() {
           className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-fg-muted transition hover:bg-bg-2"
         >
           <Sparkle className="h-4 w-4" weight="fill" />
-          <span>Automations</span>
+          <span>{t('app.automations')}</span>
         </button>
         <button
           onClick={() => {
@@ -68,24 +71,24 @@ export function Sidebar() {
           className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-fg-muted transition hover:bg-bg-2"
         >
           <Stack className="h-4 w-4" weight="fill" />
-          <span>Skills</span>
+          <span>{t('app.skills')}</span>
         </button>
         <button
           onClick={() => {
-            openSettingsSection('mcp');
+            openSettingsSection('worktrees');
             setSettingsOpen(true);
           }}
           className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-fg-muted transition hover:bg-bg-2"
         >
           <Cloud className="h-4 w-4" weight="fill" />
-          <span>Cloud</span>
+          <span>{t('app.cloud')}</span>
         </button>
       </div>
 
       <ScrollArea className="mt-4 min-h-0 flex-1">
         <div className="flex flex-col">
           {pinned.length > 0 && (
-            <GroupHeader label="Pinned" open={pinnedOpen} onToggle={() => setPinnedOpen((v) => !v)} count={pinned.length}>
+            <GroupHeader label={t('app.pinned')} open={pinnedOpen} onToggle={() => setPinnedOpen((v) => !v)} count={pinned.length}>
               {pinnedOpen &&
                 pinned.map((t) => (
                   <ThreadRow
@@ -100,7 +103,7 @@ export function Sidebar() {
             </GroupHeader>
           )}
 
-          <GroupHeader label="Threads" open={threadsOpen} onToggle={() => setThreadsOpen((v) => !v)} count={recent.length}>
+          <GroupHeader label={t('app.threads')} open={threadsOpen} onToggle={() => setThreadsOpen((v) => !v)} count={recent.length}>
             {threadsOpen && (
               <>
                 {recent.map((t) => (
@@ -115,14 +118,14 @@ export function Sidebar() {
                 ))}
                 <div className="px-2 pb-1">
                   <button className="flex w-full items-center gap-1 px-2 py-1 text-2xs text-fg-dim transition hover:text-fg">
-                    Show more
+                    {t('app.showMore')}
                   </button>
                 </div>
               </>
             )}
           </GroupHeader>
 
-          <GroupHeader label="Projects" open={projectsOpen} onToggle={() => setProjectsOpen((v) => !v)} count={projects.length}>
+          <GroupHeader label={t('app.projects')} open={projectsOpen} onToggle={() => setProjectsOpen((v) => !v)} count={projects.length}>
             {projectsOpen &&
               projects.map((p) => (
                 <button
@@ -139,14 +142,14 @@ export function Sidebar() {
 
       <div className="border-t border-line p-3">
         <div className="mb-2 flex items-center gap-1.5 text-2xs text-fg-dim">
-          <span>Environment</span>
+          <span>{t('app.environment')}</span>
         </div>
         <div className="flex items-center gap-1 rounded-lg border border-line bg-bg-2 p-0.5 text-2xs">
           {(
             [
-              { id: 'worktree' as const, label: 'Worktree', icon: GitBranch },
-              { id: 'cloud' as const, label: 'Cloud', icon: Cloud },
-              { id: 'local' as const, label: 'Local', icon: Terminal },
+              { id: 'worktree' as const, label: t('app.worktree'), icon: GitBranch },
+              { id: 'cloud' as const, label: t('app.cloud'), icon: Cloud },
+              { id: 'local' as const, label: t('app.local'), icon: Terminal },
             ]
           ).map((e) => {
             const Ico = e.icon;
@@ -154,7 +157,7 @@ export function Sidebar() {
             return (
               <button
                 key={e.id}
-                onClick={() => setEnv(e.id)}
+                onClick={() => setSettings({ env: e.id })}
                 className={cn(
                   'flex flex-1 items-center justify-center gap-1 rounded-md px-2 py-1 transition',
                   active ? 'bg-bg-3 text-fg' : 'text-fg-muted hover:text-fg',
