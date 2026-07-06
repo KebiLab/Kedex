@@ -17,6 +17,7 @@ import {
   ArrowSquareOut,
   CaretLeft,
   CreditCard,
+  Cloud,
   type Icon,
 } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
@@ -27,8 +28,10 @@ import { VoiceTab } from './VoiceTab';
 import { TerminalTab } from './TerminalTab';
 import { ShortcutsTab } from './ShortcutsTab';
 import { McpTab } from './McpTab';
+import { CloudMcpTab } from './CloudMcpTab';
 import { SkillsTab } from './SkillsTab';
 import { WorktreesTab } from './WorktreesTab';
+import { BrowserSettingsTab } from './BrowserSettingsTab';
 import { useApp } from '@/store/app';
 import type { ProviderConfig, ProviderId } from '@shared/ipc';
 
@@ -41,6 +44,7 @@ type SectionId =
   | 'shortcuts'
   | 'skills'
   | 'mcp'
+  | 'cloudMcp'
   | 'browser'
   | 'computer'
   | 'hooks'
@@ -70,6 +74,7 @@ const SECTIONS: Section[] = [
 
   { id: 'skills', label: 'Skills', icon: Stack, group: 'integrations' },
   { id: 'mcp', label: 'MCP servers', icon: Plugs, group: 'integrations' },
+  { id: 'cloudMcp', label: 'Cloud MCP', icon: Cloud, group: 'integrations' },
   { id: 'browser', label: 'Browser', icon: Globe, group: 'integrations' },
   { id: 'computer', label: 'Computer use', icon: Cpu, group: 'integrations' },
 
@@ -245,10 +250,11 @@ function SectionView({
       {section === 'terminal' && <TerminalTab />}
       {section === 'shortcuts' && <ShortcutsTab />}
       {section === 'mcp' && <McpTab />}
+      {section === 'cloudMcp' && <CloudMcpTab />}
       {section === 'skills' && <SkillsTab />}
+      {section === 'browser' && <BrowserSettingsTab />}
       {section === 'worktrees' && <WorktreesTab />}
-      {(section === 'browser' ||
-        section === 'computer' ||
+      {(section === 'computer' ||
         section === 'hooks' ||
         section === 'connectors' ||
         section === 'git' ||

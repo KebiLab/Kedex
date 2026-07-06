@@ -292,18 +292,54 @@ export function registerIpc() {
         }
 
         case 'mcp/list': {
-          return { type: 'ok', payload: getMcpServers() } as const;
+          let list = getMcpServers();
+          // Seed built-in cloud MCPs (Codex / Anthropic) on first read.
+          if (!list.find((s) => s.id === 'mcp_codex_cloud')) {
+            saveMcpServer({
+              id: 'mcp_codex_cloud',
+              name: 'Codex Cloud',
+              kind: 'cloud',
+              url: 'https://mcp.codex.dev/v1',
+              requiresAuth: true,
+              enabled: false,
+              status: 'disconnected',
+              args: [],
+              env: {},
+              tools: ['codex_search', 'codex_run', 'codex_files'],
+              lastError: null,
+            });
+          }
+          if (!list.find((s) => s.id === 'mcp_anthropic_cloud')) {
+            saveMcpServer({
+              id: 'mcp_anthropic_cloud',
+              name: 'Anthropic MCP',
+              kind: 'cloud',
+              url: 'https://mcp.anthropic.com/v1',
+              requiresAuth: true,
+              enabled: false,
+              status: 'disconnected',
+              args: [],
+              env: {},
+              tools: ['claude_search', 'claude_files', 'claude_code'],
+              lastError: null,
+            });
+          }
+          list = getMcpServers();
+          return { type: 'ok', payload: list } as const;
         }
         case 'mcp/add': {
           const id = `mcp_${Date.now()}`;
           saveMcpServer({
             id,
             name: req.payload.name,
+            kind: req.payload.kind,
             command: req.payload.command,
-            args: req.payload.args,
-            env: req.payload.env,
+            args: req.payload.args ?? [],
+            env: req.payload.env ?? {},
+            url: req.payload.url,
+            requiresAuth: req.payload.requiresAuth ?? false,
             enabled: req.payload.enabled,
-            status: 'connecting',
+            status: req.payload.enabled ? 'connecting' : 'disconnected',
             tools: [],
             lastError: null,
           });
@@ -319,6 +355,8 @@ export function registerIpc() {
           if (s) {
             saveMcpServer({
               ...s,
+              command: s.command ?? undefined,
+              url: s.url ?? undefined,
               enabled: req.payload.enabled,
               status: req.payload.enabled ? 'connecting' : 'disconnected',
             });
@@ -328,7 +366,71 @@ export function registerIpc() {
         case 'mcp/restart': {
           const all = getMcpServers();
           const s = all.find((x) => x.id === req.payload.id);
-          if (s) saveMcpServer({ ...s, status: 'connecting', lastError: null });
+          if (s) {
+            saveMcpServer({
+              ...s,
+              command: s.command ?? undefined,
+              url: s.url ?? undefined,
+              status: 'connecting',
+              lastError: null,
+            });
+          }
+          return { type: 'ok' } as const;
+        }
+        case 'mcp/connect': {
+          const all = getMcpServers();
+          const s = all.find((x) => x.id === req.payload.id);
+          if (!s) return { type: 'error', error: { code: 'NOT_FOUND', message: 'mcp not found' } } as const;
+          if (s.kind === 'cloud' && s.requiresAuth) {
+            const url = `${s.url}/oauth/authorize?client_id=kedex&response_type=token&state=${s.id}`;
+            saveMcpServer({
+              ...s,
+              command: s.command ?? undefined,
+              url: s.url ?? undefined,
+              status: 'connecting',
+              lastError: null,
+            });
+            return { type: 'ok', payload: { oauthUrl: url, state: s.id } } as const;
+          }
+          saveMcpServer({
+            ...s,
+            command: s.command ?? undefined,
+            url: s.url ?? undefined,
+            status: 'connected',
+            lastError: null,
+          });
+          return { type: 'ok' } as const;
+        }
+        case 'mcp/disconnect': {
+          const all = getMcpServers();
+          const s = all.find((x) => x.id === req.payload.id);
+          if (s) {
+            saveMcpServer({
+              ...s,
+              command: s.command ?? undefined,
+              url: s.url ?? undefined,
+              status: 'disconnected',
+              lastError: null,
+            });
+          }
+          return { type: 'ok' } as const;
+        }
+        case 'mcp/oauth/start': {
+          const all = getMcpServers();
+          const s = all.find((x) => x.id === req.payload.id);
+          if (!s?.url) {
+            return { type: 'error', error: { code: 'NO_URL', message: 'no oauth url' } } as const;
+          }
+          const url = `${s.url}/oauth/authorize?client_id=kedex&response_type=token&state=${s.id}`;
+          await shell.openExternal(url);
+          saveMcpServer({
+            ...s,
+            command: s.command ?? undefined,
+            url: s.url ?? undefined,
+            status: 'connected',
+            tokenExpiresAt: Date.now() + 60 * 60 * 1000,
+            lastError: null,
+          });
           return { type: 'ok' } as const;
         }
 

@@ -51,6 +51,7 @@ interface AppState {
   activeProviderId: ProviderId | null;
   activeModel: string;
   mcpServers: McpServer[];
+  cloudMcpConnected: boolean;
   isStreaming: boolean;
   streamBuffer: string;
   pendingApproval: ApprovalRequest | null;
@@ -80,6 +81,9 @@ interface AppState {
   addMcpServer: (s: McpServer) => void;
   removeMcpServer: (id: string) => void;
   toggleMcpServer: (id: string, enabled: boolean) => void;
+  connectMcpServer: (id: string) => void;
+  disconnectMcpServer: (id: string) => void;
+  startMcpOAuth: (id: string) => void;
   setSettingsOpen: (b: boolean) => void;
   openSettingsSection: (id: string) => void;
   setBrowserOpen: (b: boolean) => void;
@@ -155,6 +159,7 @@ export const useApp = create<AppState>((set, get) => ({
   activeProviderId: 'openai',
   activeModel: 'gpt-4o-mini',
   mcpServers: [],
+  cloudMcpConnected: false,
   isStreaming: false,
   streamBuffer: '',
   pendingApproval: null,
@@ -249,6 +254,54 @@ export const useApp = create<AppState>((set, get) => ({
       ),
     }));
     window.kedex?.invoke({ type: 'mcp/toggle', payload: { id, enabled } }).catch(() => undefined);
+  },
+  connectMcpServer: (id) => {
+    set((cur) => ({
+      mcpServers: cur.mcpServers.map((s) =>
+        s.id === id ? { ...s, status: 'connecting' } : s,
+      ),
+    }));
+    window.kedex
+      ?.invoke({ type: 'mcp/connect', payload: { id } })
+      .then((r) => {
+        const payload = r as { oauthUrl?: string; state?: string } | null;
+        if (payload?.oauthUrl) {
+          // Open OAuth URL in system browser
+          window.kedex
+            ?.invoke({ type: 'app/openExternal', payload: { url: payload.oauthUrl } })
+            .catch(() => undefined);
+        }
+        set((cur) => ({
+          mcpServers: cur.mcpServers.map((s) =>
+            s.id === id ? { ...s, status: 'connected' } : s,
+          ),
+          cloudMcpConnected: true,
+        }));
+      })
+      .catch(() => undefined);
+  },
+  disconnectMcpServer: (id) => {
+    set((cur) => ({
+      mcpServers: cur.mcpServers.map((s) =>
+        s.id === id ? { ...s, status: 'disconnected' } : s,
+      ),
+    }));
+    window.kedex?.invoke({ type: 'mcp/disconnect', payload: { id } }).catch(() => undefined);
+  },
+  startMcpOAuth: (id) => {
+    window.kedex
+      ?.invoke({ type: 'mcp/oauth/start', payload: { id } })
+      .then(() => {
+        set((cur) => ({
+          mcpServers: cur.mcpServers.map((s) =>
+            s.id === id
+              ? { ...s, status: 'connected', tokenExpiresAt: Date.now() + 60 * 60 * 1000 }
+              : s,
+          ),
+          cloudMcpConnected: true,
+        }));
+      })
+      .catch(() => undefined);
   },
   setSettingsOpen: (b) => set({ settingsOpen: b }),
   openSettingsSection: (id) => set({ settingsSection: id, settingsOpen: true }),

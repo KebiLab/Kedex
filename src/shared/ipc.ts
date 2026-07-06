@@ -77,13 +77,21 @@ export interface FileDiff {
 export interface McpServer {
   id: string;
   name: string;
-  command: string;
-  args: string[];
-  env: Record<string, string>;
+  /** 'local' = spawned stdio process via command/args; 'cloud' = remote HTTP/SSE MCP server. */
+  kind: 'local' | 'cloud';
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  /** Cloud MCP endpoint URL (https://...mcp...). */
+  url?: string;
+  /** OAuth flow marker for cloud servers that require user login. */
+  requiresAuth?: boolean;
   enabled: boolean;
   status: 'connected' | 'disconnected' | 'error' | 'connecting';
   tools: string[];
   lastError?: string;
+  /** For cloud servers with OAuth, when the bearer token expires. */
+  tokenExpiresAt?: number;
 }
 
 export interface GitStatus {
@@ -178,11 +186,14 @@ export type IpcRequest =
   | { type: 'secrets/set'; payload: { providerId: ProviderId; apiKey: string } }
   | { type: 'secrets/get'; payload: { providerId: ProviderId } }
   | { type: 'secrets/has'; payload: { providerId: ProviderId } }
-  | { type: 'mcp/list' }
+  | { type: 'mcp/list'; payload?: Record<string, never> }
   | { type: 'mcp/add'; payload: Omit<McpServer, 'id' | 'status' | 'tools'> }
   | { type: 'mcp/remove'; payload: { id: string } }
   | { type: 'mcp/toggle'; payload: { id: string; enabled: boolean } }
   | { type: 'mcp/restart'; payload: { id: string } }
+  | { type: 'mcp/connect'; payload: { id: string } }
+  | { type: 'mcp/disconnect'; payload: { id: string } }
+  | { type: 'mcp/oauth/start'; payload: { id: string } }
   | { type: 'voice/transcribe'; payload: { audioBase64: string; mime: string; provider?: string } }
   | { type: 'app/openExternal'; payload: { url: string } }
   | { type: 'app/openPath'; payload: { path: string } }

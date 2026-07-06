@@ -60,13 +60,17 @@ export function initDb(): Database.Database {
     CREATE TABLE IF NOT EXISTS mcp_servers (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
-      command TEXT NOT NULL,
-      args TEXT NOT NULL,
+      kind TEXT NOT NULL DEFAULT 'local',
+      command TEXT,
+      args TEXT NOT NULL DEFAULT '[]',
       env TEXT NOT NULL DEFAULT '{}',
+      url TEXT,
+      requires_auth INTEGER NOT NULL DEFAULT 0,
       enabled INTEGER NOT NULL DEFAULT 1,
       status TEXT NOT NULL DEFAULT 'disconnected',
       tools TEXT NOT NULL DEFAULT '[]',
-      last_error TEXT
+      last_error TEXT,
+      token_expires_at INTEGER
     );
     CREATE TABLE IF NOT EXISTS skills (
       id TEXT PRIMARY KEY,
@@ -157,61 +161,106 @@ export function removeProvider(id: string): void {
   initDb().prepare(`DELETE FROM providers WHERE id = ?`).run(id);
 }
 
-export function getMcpServers(): { id: string; name: string; command: string; args: string[]; env: Record<string, string>; enabled: boolean; status: string; tools: string[]; lastError: string | null }[] {
+export function getMcpServers(): {
+  id: string;
+  name: string;
+  kind: 'local' | 'cloud';
+  command: string | null;
+  args: string[];
+  env: Record<string, string>;
+  url: string | null;
+  requiresAuth: boolean;
+  enabled: boolean;
+  status: string;
+  tools: string[];
+  lastError: string | null;
+  tokenExpiresAt: number | null;
+}[] {
   const d = initDb();
   const rows = d
     .prepare(
-      `SELECT id, name, command, args, env, enabled, status, tools, last_error FROM mcp_servers ORDER BY rowid DESC`,
+      `SELECT id, name, kind, command, args, env, url, requires_auth, enabled, status, tools, last_error, token_expires_at
+       FROM mcp_servers ORDER BY rowid DESC`,
     )
     .all() as Array<{
     id: string;
     name: string;
-    command: string;
+    kind: string;
+    command: string | null;
     args: string;
     env: string;
+    url: string | null;
+    requires_auth: number;
     enabled: number;
     status: string;
     tools: string;
     last_error: string | null;
+    token_expires_at: number | null;
   }>;
   return rows.map((r) => ({
     id: r.id,
     name: r.name,
+    kind: (r.kind === 'cloud' ? 'cloud' : 'local') as 'local' | 'cloud',
     command: r.command,
     args: JSON.parse(r.args || '[]'),
     env: JSON.parse(r.env || '{}'),
+    url: r.url,
+    requiresAuth: !!r.requires_auth,
     enabled: !!r.enabled,
     status: r.status,
     tools: JSON.parse(r.tools || '[]'),
     lastError: r.last_error,
+    tokenExpiresAt: r.token_expires_at,
   }));
 }
 
-export function saveMcpServer(s: { id: string; name: string; command: string; args: string[]; env: Record<string, string>; enabled: boolean; status: string; tools: string[]; lastError: string | null }): void {
+export function saveMcpServer(s: {
+  id: string;
+  name: string;
+  kind: 'local' | 'cloud';
+  command?: string;
+  args: string[];
+  env: Record<string, string>;
+  url?: string;
+  requiresAuth?: boolean;
+  enabled: boolean;
+  status: string;
+  tools: string[];
+  lastError: string | null;
+  tokenExpiresAt?: number | null;
+}): void {
   initDb()
     .prepare(
-      `INSERT INTO mcp_servers (id, name, command, args, env, enabled, status, tools, last_error)
-       VALUES (@id, @name, @command, @args, @env, @enabled, @status, @tools, @lastError)
+      `INSERT INTO mcp_servers (id, name, kind, command, args, env, url, requires_auth, enabled, status, tools, last_error, token_expires_at)
+       VALUES (@id, @name, @kind, @command, @args, @env, @url, @requiresAuth, @enabled, @status, @tools, @lastError, @tokenExpiresAt)
        ON CONFLICT(id) DO UPDATE SET
          name=excluded.name,
+         kind=excluded.kind,
          command=excluded.command,
          args=excluded.args,
          env=excluded.env,
+         url=excluded.url,
+         requires_auth=excluded.requires_auth,
          enabled=excluded.enabled,
          status=excluded.status,
          tools=excluded.tools,
-         last_error=excluded.last_error`,
+         last_error=excluded.last_error,
+         token_expires_at=excluded.token_expires_at`,
     )
     .run({
       id: s.id,
       name: s.name,
-      command: s.command,
+      kind: s.kind,
+      command: s.command ?? null,
       args: JSON.stringify(s.args),
       env: JSON.stringify(s.env),
+      url: s.url ?? null,
+      requiresAuth: s.requiresAuth ? 1 : 0,
       enabled: s.enabled ? 1 : 0,
       status: s.status,
       tools: JSON.stringify(s.tools),
       lastError: s.lastError,
+      tokenExpiresAt: s.tokenExpiresAt ?? null,
     });
 }
 
